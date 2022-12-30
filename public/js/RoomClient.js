@@ -2163,7 +2163,7 @@ class RoomClient {
                 } else {
                     if (this.pinnedVideoPlayerId != videoPlayer.id) {
                         this.isVideoPinned = true;
-                        return this.msgPopup('info', 'Another video seems pinned, unpin it before to pin this one');
+                        return this.msgPopup('info', 'Another video is pinned at the moment');
                     }
                     if (!isScreen) videoPlayer.style.objectFit = 'var(--videoObjFit)';
                     this.videoPinMediaContainer.removeChild(cam);
@@ -3527,7 +3527,7 @@ isPresenter
             case 'accept':
                 this.joinAllowed(data.room);
                 control.style.display = 'flex';
-                this.msgPopup('info', 'Your join meeting was be accepted by moderator');
+                this.msgPopup('info', 'You are admitted to the meeting by the organizer.');
                 break;
             case 'reject':
                 this.sound('eject');
@@ -3539,7 +3539,7 @@ isPresenter
                     showConfirmButton: true,
                     background: swalBackground,
                     title: 'Rejected',
-                    text: 'Your join meeting was be rejected by moderator',
+                    text: 'You are rejected by the organizer.',
                     confirmButtonText: `Ok`,
                     showClass: {
                         popup: 'animate__animated animate__fadeInDown',
@@ -3738,7 +3738,7 @@ isPresenter
             showDenyButton: true,
             showConfirmButton: false,
             background: swalBackground,
-            title: 'Asking to join meeting.',
+            title: 'Requesting to join the meeting',
             text: 'Please waiting...',
             confirmButtonText: `Ok`,
             denyButtonText: `Leave room`,

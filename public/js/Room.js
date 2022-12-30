@@ -105,19 +105,21 @@ let isRoomLocked = false;
 
 function initClient() {
     if (!DetectRTC.isMobileDevice) {
-        setTippy('shareButton', 'Share room', 'right');
-        setTippy('startAudioButton', 'Start the audio', 'right');
-        setTippy('stopAudioButton', 'Stop the audio', 'right');
-        setTippy('startVideoButton', 'Start the video', 'right');
-        setTippy('stopVideoButton', 'Stop the video', 'right');
-        setTippy('startScreenButton', 'Start screen share', 'right');
-        setTippy('stopScreenButton', 'Stop screen share', 'right');
-        setTippy('swapCameraButton', 'Swap the camera', 'right');
-        setTippy('chatButton', 'Toggle the chat', 'right');
-        setTippy('whiteboardButton', 'Toggle the whiteboard', 'right');
-        setTippy('settingsButton', 'Toggle the settings', 'right');
-        setTippy('exitButton', 'Leave room', 'right');
-        setTippy('mySettingsCloseBtn', 'Close', 'right');
+        setTippy('shareButton', 'Share room', 'top');
+        setTippy('startAudioButton', 'Start the audio', 'top');
+        setTippy('raiseHandButton', 'Raise hand', 'top');
+        setTippy('lowerHandButton', 'Lower the hand', 'top');
+        setTippy('stopAudioButton', 'Stop the audio', 'top');
+        setTippy('startVideoButton', 'Start the video', 'top');
+        setTippy('stopVideoButton', 'Stop the video', 'top');
+        setTippy('startScreenButton', 'Start screen share', 'top');
+        setTippy('stopScreenButton', 'Stop screen share', 'top');
+        setTippy('swapCameraButton', 'Swap the camera', 'top');
+        setTippy('chatButton', 'Chat', 'top');
+        setTippy('whiteboardButton', 'Whiteboard', 'top');
+        setTippy('settingsButton', 'Settings', 'top');
+        setTippy('exitButton', 'Leave room', 'top');
+        setTippy('mySettingsCloseBtn', 'Close', 'top');
         setTippy('tabDevicesBtn', 'Devices', 'top');
         // setTippy('tabRecordingBtn', 'Recording', 'top');
         setTippy('tabRoomBtn', 'Room', 'top');
@@ -544,14 +546,13 @@ async function shareRoom(useNavigator = false) {
                 <canvas id="qrRoom"></canvas>
             </div>
             <br/><br/>
-            <p style="background:transparent; color:white;">Invite others to join. Share this meeting link.</p>
+            <p style="background:transparent; color:white;">Share the link or QR code to invite others</p>
             <p style="background:transparent; color:rgb(8, 189, 89);">` +
                 (RoomURL.split('?')[0]) +'?room='+ room_id +
                 `</p>`,
             showDenyButton: true,
             showCancelButton: true,
             confirmButtonText: `Copy URL`,
-            denyButtonText: `Email invite`,
             cancelButtonText: `Close`,
             showClass: {
                 popup: 'animate__animated animate__fadeInUp',
@@ -1243,11 +1244,34 @@ function handleRoomClientEvents() {
     //     isLobbyEnabled = false;
     // });
     rc.on(RoomClient.EVENTS.exitRoom, () => {
-        console.log('Room Client leave room');
-            openURL('https://deepbluework.com/');
+        leaveFeedback();
     });
 }
-
+function leaveFeedback() {
+    Swal.fire({
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showDenyButton: true,
+        background: swalBackground,
+        // imageUrl: image.feedback,
+        title: 'You left the meeting.',
+        text: 'Do you wantchrejoin?',
+        confirmButtonText: `Yes`,
+        denyButtonText: `No`,
+        showClass: {
+            popup: 'animate__animated animate__fadeInDown',
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOutUp',
+        },
+    }).then((result) => {
+        if (result.isConfirmed) {
+            location.reload();
+        } else {
+            openURL('https://deepbluework.com/');
+        }
+    });
+}
 // ####################################################
 // UTILITY
 // ####################################################
