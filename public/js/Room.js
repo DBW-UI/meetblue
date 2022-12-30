@@ -550,7 +550,7 @@ async function shareRoom(useNavigator = false) {
             <p style="background:transparent; color:rgb(8, 189, 89);">` +
                 (RoomURL.split('?')[0]) +'?room='+ room_id +
                 `</p>`,
-            showDenyButton: true,
+            showDenyButton: false,
             showCancelButton: true,
             confirmButtonText: `Copy URL`,
             cancelButtonText: `Close`,
@@ -563,17 +563,6 @@ async function shareRoom(useNavigator = false) {
         }).then((result) => {
             if (result.isConfirmed) {
                 copyRoomURL();
-            } else if (result.isDenied) {
-                let message = {
-                    email: '',
-                    subject: 'Please join our Meetblue Video Chat Meeting',
-                    body: 'Click to join: ' + (RoomURL.split('?')[0]) +'?room='+ room_id ,
-                };
-                shareRoomByEmail(message);
-            }
-            // share screen on join
-            if (isScreenAllowed) {
-                rc.shareScreen();
             }
         });
         makeRoomQR();
