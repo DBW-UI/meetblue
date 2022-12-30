@@ -2528,7 +2528,7 @@ class RoomClient {
         chatMsger.scrollTop += 500;
         this.setTippy('msg-delete-' + chatMessagesId, 'Delete', 'top');
         this.setTippy('msg-copy-' + chatMessagesId, 'Copy', 'top');
-        this.setTippy('msg-private-reply-' + chatMessagesId, 'Reply', 'top');
+        this.setTippy('msg-private-reply-' + chatMessagesId, 'Private message', 'top');
         chatMessagesId++;
     }
 
