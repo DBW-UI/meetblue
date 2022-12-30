@@ -81,7 +81,10 @@ body {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background: url('../images/background.jpg');
+    background: url('../images/wavy-background.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center
 }
 
 /*--------------------------------------------------------------
