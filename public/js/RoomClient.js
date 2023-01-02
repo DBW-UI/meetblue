@@ -1659,7 +1659,7 @@ class RoomClient {
         }
         this.handleDD(d.id, peer_id, !remotePeer);
         this.popupPeerInfo(p.id, peer_info);
-        this.setVideoAvatarImgName(i.id, peer_name);
+        this.setVideoAvatarImgName(i.id, peer_name, peer_info?.personal_color);
         this.getId(i.id).style.display = 'block';
         handleAspectRatio();
         if (isParticipantsListOpen) getRoomParticipants(true);
@@ -1822,13 +1822,13 @@ class RoomClient {
         });
     }
 
-    setVideoAvatarImgName(elemId, peer_name) {
+    setVideoAvatarImgName(elemId, peer_name, personal_color) {
         let elem = this.getId(elemId);
         if (cfg.useAvatarApi) {
             let avatarImgSize = 250;
             elem.setAttribute(
                 'src',
-                cfg.msgAvatar + '?name=' + peer_name + '&size=' + avatarImgSize + '&background=random&rounded=true',
+                cfg.msgAvatar + '?name=' + peer_name + '&size=' + avatarImgSize + '&background='+personal_color+'&rounded=true',
             );
         } else {
             elem.setAttribute('src', image.avatar);
