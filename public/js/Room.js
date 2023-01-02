@@ -22,7 +22,7 @@ const _PEER = {
     audioOff: '<i style="color: red;" class="fas fa-microphone-slash"></i>',
     videoOn: '<i class="fas fa-video"></i>',
     videoOff: '<i style="color: red;" class="fas fa-video-slash"></i>',
-    raiseHand: '<i style="color: rgb(0, 255, 71);" class="fas fa-hand-paper pulsate"></i>',
+    raiseHand: '<i style="color: #fff700;" class="fas fa-hand-paper pulsate"></i>',
     lowerHand: '',
     acceptPeer: '<i class="fas fa-check"></i>',
     ejectPeer: '<i class="fas fa-times"></i>',
@@ -46,7 +46,7 @@ const swalImageUrl = '../images/pricing-illustration.svg';
 // ####################################################
 
 let currentTheme = 'dark';
-let swalBackground = 'radial-gradient(#393939, #000000)'; //'rgba(0, 0, 0, 0.7)';
+let swalBackground = 'radial-gradient(#202641, #181D35)'; //'rgba(0, 0, 0, 0.7)';
 
 let rc = null;
 let producer = null;
@@ -63,6 +63,7 @@ let token = getToken();
 
 let peer_geo = null;
 let peer_info = null;
+let personal_color= Math.floor(Math.random()*16777215).toString(16);
 
 let isSoundEnabled = true;
 let isLobbyEnabled = true;
@@ -133,7 +134,6 @@ function initClient() {
         setTippy('switchSounds', 'Toggle the sounds notifications', 'right');
         setTippy('whiteboardGhostButton', 'Toggle transparent background', 'bottom');
         setTippy('wbBackgroundColorEl', 'Background color', 'bottom');
-        setTippy('wbDrawingColorEl', 'Drawing color', 'bottom');
         setTippy('whiteboardPencilBtn', 'Drawing mode', 'bottom');
         setTippy('whiteboardObjectBtn', 'Object mode', 'bottom');
         setTippy('whiteboardUndoBtn', 'Undo', 'bottom');
@@ -380,6 +380,7 @@ function getPeerInfo() {
         browser_version: DetectRTC.browser.version,
         peer_id: socket.id,
         token: token,
+        personal_color: personal_color,
         is_waiting: true,
         user_name: user_name,
         peer_name: peer_name,
@@ -1044,10 +1045,6 @@ function handleSelects() {
         }
     };
     // whiteboard options
-    wbDrawingColorEl.onchange = () => {
-        wbCanvas.freeDrawingBrush.color = wbDrawingColorEl.value;
-        whiteboardIsDrawingMode(true);
-    };
     wbBackgroundColorEl.onchange = () => {
         setWhiteboardBgColor(wbBackgroundColorEl.value);
     };
@@ -1233,34 +1230,16 @@ function handleRoomClientEvents() {
     //     isLobbyEnabled = false;
     // });
     rc.on(RoomClient.EVENTS.exitRoom, () => {
-        leaveFeedback();
-    });
-}
-function leaveFeedback() {
-    Swal.fire({
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        showDenyButton: true,
-        background: swalBackground,
-        // imageUrl: image.feedback,
-        title: 'You left the meeting.',
-        text: 'Do you wantchrejoin?',
-        confirmButtonText: `Yes`,
-        denyButtonText: `No`,
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown',
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp',
-        },
-    }).then((result) => {
-        if (result.isConfirmed) {
+        let qs = new URLSearchParams(window.location.search);
+        const token= qs.get('token');
+        if (!token) {
             location.reload();
         } else {
             openURL('https://deepbluework.com/');
         }
     });
 }
+
 // ####################################################
 // UTILITY
 // ####################################################
@@ -1410,7 +1389,7 @@ function setupWhiteboard() {
 
 function setupWhiteboardCanvas() {
     wbCanvas = new fabric.Canvas('wbCanvas');
-    wbCanvas.freeDrawingBrush.color = '#FFFFFF';
+    wbCanvas.freeDrawingBrush.color = '#'+personal_color;
     wbCanvas.freeDrawingBrush.width = 3;
     whiteboardIsDrawingMode(true);
 }
@@ -1949,12 +1928,12 @@ function getParticipantAvatar(peerName) {
 function setTheme(theme) {
     switch (theme) {
         case 'dark':
-            swalBackground = 'radial-gradient(#393939, #000000)';
-            document.documentElement.style.setProperty('--body-bg', 'radial-gradient(#393939, #000000)');
-            document.documentElement.style.setProperty('--msger-bg', 'radial-gradient(#393939, #000000)');
-            document.documentElement.style.setProperty('--settings-bg', 'radial-gradient(#393939, #000000)');
-            document.documentElement.style.setProperty('--wb-bg', 'radial-gradient(#393939, #000000)');
-            document.body.style.background = 'radial-gradient(#393939, #000000)';
+            swalBackground = 'radial-gradient(#202641, #181D35)';
+            document.documentElement.style.setProperty('--body-bg', 'radial-gradient(#202641, #181D35)');
+            document.documentElement.style.setProperty('--msger-bg', 'radial-gradient(#202641, #181D35)');
+            document.documentElement.style.setProperty('--settings-bg', 'radial-gradient(#202641, #181D35)');
+            document.documentElement.style.setProperty('--wb-bg', 'radial-gradient(#202641, #181D35)');
+            document.body.style.background = 'radial-gradient(#202641, #181D35)';
             break;
         case 'grey':
             swalBackground = 'radial-gradient(#666, #333)';
