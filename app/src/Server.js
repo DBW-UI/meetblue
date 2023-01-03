@@ -195,16 +195,15 @@ app.use((err, req, res, next) => {
 // });
 
 // no room name specified to join || direct join
-app.get('/join/', (req, res) => {
+app.get('/', (req, res) => {
     if (hostCfg.authenticated && Object.keys(req.query).length > 0) {
         log.debug('Direct Join', req.query);
-        // http://localhost:3010/join?room=test&password=0&name=mirotalksfu&audio=1&video=1&screen=1&notify=1
         const { room } = req.query;
         if (!!room) {
             return res.sendFile(views.room);
         }
     }
-    res.redirect('/');
+    return res.redirect("https://deepbluework.com/")
 });
 
 // join room
