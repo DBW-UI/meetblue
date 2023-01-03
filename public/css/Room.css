@@ -64,10 +64,21 @@
     --btns-margin-left: -160px;
     --btns-width: 320px;
     --btns-flex-direction: row;
+   
  
     --vmi-wh: 15vw;
     /* https://developer.mozilla.org/en-US/docs/Web/CSS/object-fit */
     --videoObjFit: cover;
+}
+@media screen and (max-width: 1000px) {
+    :root { 
+    --btns-top: 50%;
+    --btns-right: 0%;
+    --btns-left: 10px;
+    --btns-margin-left: 0px;
+    --btns-width: 60px;
+    --btns-flex-direction: column; 
+    }  
 }
 
 * {
@@ -130,7 +141,7 @@ body {
 #control {
     z-index: 3;
     position: absolute;
-    display: flex;
+    display: flex ;
     padding: 5px;
 
     top: var(--btns-top);
@@ -158,8 +169,18 @@ body {
     background: rgba(0, 0, 0, 0.7);
     border-radius: 10px;
     border: var(--border);
-    /* box-shadow: var(--box-shadow); */
+   
 }
+@media screen and (max-width: 1000px) {
+    #control button {
+        box-sizing: border-box;
+        height: 30px;
+        width: 30px;
+        font-size: 11px;
+        padding-top: 5px;
+        border-radius: 8px;
+    }
+  }
 
 #control p {
     font-size: small;
@@ -900,6 +921,16 @@ progress {
     margin: 2px;
     border-radius: 5px;
     border: var(--border);
+   
+}
+@media screen and (max-width: 1000px) {
+    .whiteboard-header button {
+        height: 26px;
+        width: 26px;
+        padding: 6px;
+        margin: 2px;
+        font-size: 12px;
+    }   
 }
 
 .whiteboardColorPicker {
