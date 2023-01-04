@@ -1501,7 +1501,7 @@ class RoomClient {
                     this.setTippy(pn.id, 'Toggle Pin', 'top-end');
                     this.setTippy(ts.id, 'Snapshot', 'top-end');
                     this.setTippy(sf.id, 'Send file', 'top-end');
-                    this.setTippy(sm.id, 'Send message', 'top-end');
+                    this.setTippy(sm.id, 'Private message', 'top-end');
                     this.setTippy(sv.id, 'Send video', 'top-end');
                     this.setTippy(cm.id, 'Hide', 'top-end');
                     this.setTippy(au.id, 'Mute', 'top-end');
@@ -1664,7 +1664,7 @@ class RoomClient {
         handleAspectRatio();
         if (isParticipantsListOpen) getRoomParticipants(true);
         if (!this.isMobileDevice && remotePeer) {
-            this.setTippy(sm.id, 'Send message', 'top-end');
+            this.setTippy(sm.id, 'Private message', 'top-end');
             this.setTippy(sf.id, 'Send file', 'top-end');
             this.setTippy(sv.id, 'Send video', 'top-end');
             this.setTippy(au.id, 'Mute', 'top-end');
@@ -2401,12 +2401,13 @@ class RoomClient {
         let data = {
             peer_name: this.peer_name,
             peer_id: this.peer_id,
+            personal_color: this.peer_info?.personal_color,
             to_peer_id: 'all',
             peer_msg: peer_msg,
         };
-        console.log('Send message:', data);
+
         this.socket.emit('message', data);
-        this.setMsgAvatar('right', this.peer_name);
+        this.setMsgAvatar('right', this.peer_name, data.personal_color);
         this.appendMessage('right', this.rightMsgAvatar, this.peer_name, this.peer_id, peer_msg, 'all', 'all');
         this.cleanMessage();
     }
@@ -2442,11 +2443,12 @@ class RoomClient {
                     peer_id: this.peer_id,
                     to_peer_id: to_peer_id,
                     to_peer_name: to_peer_name,
+                    personal_color: this.peer_info?.personal_color,
                     peer_msg: peer_msg,
                 };
-                console.log('Send message:', data);
+                
                 this.socket.emit('message', data);
-                this.setMsgAvatar('right', this.peer_name);
+                this.setMsgAvatar('right', this.peer_name, data?.personal_color);
                 this.appendMessage(
                     'right',
                     this.rightMsgAvatar,
@@ -2463,7 +2465,7 @@ class RoomClient {
 
     showMessage(data) {
         if (!this.isChatOpen && this.showChatOnMessage) this.toggleChat();
-        this.setMsgAvatar('left', data.peer_name);
+        this.setMsgAvatar('left', data.peer_name, data?.personal_color);
         this.appendMessage(
             'left',
             this.leftMsgAvatar,
@@ -2479,8 +2481,8 @@ class RoomClient {
         this.sound('message');
     }
 
-    setMsgAvatar(avatar, peerName) {
-        let avatarImg = cfg.msgAvatar + '?name=' + peerName + '&size=32' + '&background=random&rounded=true';
+    setMsgAvatar(avatar, peerName,personal_color) {
+        let avatarImg = cfg.msgAvatar + '?name=' + peerName + '&size=32' + '&background='+personal_color+'&rounded=true';
         avatar === 'left' ? (this.leftMsgAvatar = avatarImg) : (this.rightMsgAvatar = avatarImg);
     }
 
@@ -3497,7 +3499,7 @@ isPresenter
                     let lobbyTr = '';
                     let peer_id = data.peer_id;
                     let peer_name = data.peer_name;
-                    let avatarImg = getParticipantAvatar(peer_name);
+                    let avatarImg = getParticipantAvatar(peer_name, data?.personal_color);
                     let lobbyTb = this.getId('lobbyTb');
                     let lobbyAccept = _PEER.acceptPeer;
                     let lobbyReject = _PEER.ejectPeer;

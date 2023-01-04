@@ -433,6 +433,7 @@ function sendWaitingApprovals(socket) {
         roomList.get(socket.room_id).broadCast(peer_info.peer_id, 'roomLobby', {
             peer_id: peer_info.peer_id,
             peer_name: peer_info.peer_name,
+            personal_color: peer_info?.personal_color,
             lobby_status: 'waiting',
         });
    }
@@ -669,6 +670,7 @@ io.on('connection', (socket) => {
                             roomList.get(socket.room_id).broadCast(socket.id, 'roomLobby', {
                                 peer_id: data.peer_info.peer_id,
                                 peer_name: data.peer_info.peer_name,
+                                personal_color: data?.peer_info?.personal_color,
                                 lobby_status: 'waiting',
                             });
                             sendWaitingApproval(socket,data.peer_info);
@@ -680,6 +682,7 @@ io.on('connection', (socket) => {
                     roomList.get(socket.room_id).broadCast(socket.id, 'roomLobby', {
                         peer_id: data.peer_info.peer_id,
                         peer_name: data.peer_info.peer_name,
+                        personal_color: data?.peer_info?.personal_color,
                         lobby_status: 'waiting',
                     });
                     sendWaitingApproval(socket,data.peer_info);
