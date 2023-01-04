@@ -64,21 +64,9 @@
     --btns-margin-left: -160px;
     --btns-width: 320px;
     --btns-flex-direction: row;
-   
- 
     --vmi-wh: 15vw;
     /* https://developer.mozilla.org/en-US/docs/Web/CSS/object-fit */
     --videoObjFit: cover;
-}
-@media screen and (max-width: 1000px) {
-    :root { 
-    --btns-top: 50%;
-    --btns-right: 0%;
-    --btns-left: 10px;
-    --btns-margin-left: 0px;
-    --btns-width: 60px;
-    --btns-flex-direction: column; 
-    }  
 }
 
 * {
@@ -141,7 +129,12 @@ body {
 #control {
     z-index: 3;
     position: absolute;
-    display: flex ;
+    display: flex !important;
+    display: -webkit-box !important;     
+    display: -moz-box !important;        
+    display: -ms-flexbox !important;      
+    display: -webkit-flex !important;    
+    
     padding: 5px;
 
     top: var(--btns-top);
@@ -157,7 +150,6 @@ body {
     -webkit-transform: translate(0%, -50%);
     -ms-transform: translate(0%, -50%);
     transform: translate(0%, -50%);
-
     /* border: var(--border); */
     border-radius: 10px;
 }
@@ -172,13 +164,21 @@ body {
    
 }
 @media screen and (max-width: 1000px) {
+    #control {
+        justify-content: center;
+        grid-gap: 5px;
+    }
     #control button {
         box-sizing: border-box;
-        height: 30px;
-        width: 30px;
+        height: 28px;
+        width: 28px;
         font-size: 11px;
-        padding-top: 5px;
+        padding-top: 6px;
+        padding-left: 7px;
         border-radius: 8px;
+    }
+    #shareButton {
+        display: none !important;
     }
   }
 

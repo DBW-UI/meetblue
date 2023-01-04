@@ -1837,7 +1837,7 @@ async function getParticipantsTable(peers) {
         let peer_sendFile = _PEER.sendFile;
         let peer_sendMsg = _PEER.sendMsg;
         let peer_id = peer_info.peer_id;
-        let avatarImg = getParticipantAvatar(peer_name);
+        let avatarImg = getParticipantAvatar(peer_name, peer_info.personal_color);
         if (rc.peer_id === peer_id) {
             table += `
             <tr id='${peer_name}'>
@@ -1894,9 +1894,9 @@ function setParticipantsTippy(peers) {
     if (!DetectRTC.isMobileDevice) {
         setTippy('muteAllButton', 'Mute all participants', 'top');
         setTippy('hideAllButton', 'Hide all participants', 'top');
-        setTippy('sendAllButton', 'Share file to all', 'top');
-        setTippy('sendMessageToAll', 'Send message to all', 'top');
-        setTippy('sendVideoToAll', 'Share video to all', 'top');
+        setTippy('sendAllButton', 'Share file to everyone', 'top');
+        setTippy('sendMessageToAll', 'Send message to everyone', 'top');
+        setTippy('sendVideoToAll', 'Share video to everyone', 'top');
         setTippy('ejectAllButton', 'Eject all participants', 'top');
         //
         for (let peer of Array.from(peers.keys())) {
@@ -1917,8 +1917,8 @@ function refreshParticipantsCount(count, adapt = true) {
     if (adapt) adaptAspectRatio(count);
 }
 
-function getParticipantAvatar(peerName) {
-    return cfg.msgAvatar + '?name=' + peerName + '&size=32' + '&background=random&rounded=true';
+function getParticipantAvatar(peerName, personal_color) {
+    return cfg.msgAvatar + '?name=' + peerName + '&size=32' + '&background='+personal_color+'&rounded=true';
 }
 
 // ####################################################

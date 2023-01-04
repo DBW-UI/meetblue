@@ -8,7 +8,7 @@
     display: flex;
     top: 0;
     width: 100%;
-    height: 100%;
+    height: 92%;
     border-radius: 5px;
     align-content: center;
     flex-wrap: wrap;
@@ -116,12 +116,17 @@
 .videoMenuBar {
     z-index: 2;
     position: absolute;
-    display: inline;
+    display: flex !important;
+    display: -webkit-box !important;     
+    display: -moz-box !important;        
+    display: -ms-flexbox !important;      
+    display: -webkit-flex !important;  
+    flex-direction: row-reverse;
     top: 0;
     left: 0;
     padding: 10px;
     background: rgba(0, 0, 0, 0.2);
-    font-size: small;
+    font-size: 11px;
     font-weight: bold;
     text-align: center;
     width: 100%;
