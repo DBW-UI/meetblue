@@ -143,6 +143,9 @@
     .videoMenuBar button[id*="__pVolume"] {
         display: none !important;
     }
+    .videoMenuBar button[id*="__video"] {
+        display: none !important;
+    }
     .videoMenuBar button[id*="__snapshot"] {
         display: none !important;
     }
