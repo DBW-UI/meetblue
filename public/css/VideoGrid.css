@@ -133,6 +133,21 @@
     cursor: default;
     overflow: hidden;
 }
+@media screen and (max-width: 1000px) {
+    .videoMenuBar button[id*="__sendVideo"] {
+        display: none !important;
+    }
+    .videoMenuBar button[id*="__sendFile"] {
+        display: none !important;
+    }
+    .videoMenuBar button[id*="__pVolume"] {
+        display: none !important;
+    }
+    .videoMenuBar button[id*="__snapshot"] {
+        display: none !important;
+    }
+    
+}
 
 .videoMenuBar input,
 .videoMenuBar button {
