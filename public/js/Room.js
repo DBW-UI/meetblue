@@ -212,13 +212,10 @@ async function initEnumerateDevices() {
     console.log('01 ----> init Enumerate Devices');
     await initEnumerateAudioDevices();
     await initEnumerateVideoDevices();
-    if (!isAudioAllowed && !isVideoAllowed && !joinRoomWithoutAudioVideo) {
-        openURL(`/permission?room_id=${room_id}&message=Not allowed both Audio and Video`);
-    } else {
         hide(loadingDiv);
         getPeerGeoLocation();
         whoAreYou();
-    }
+    
 }
 
 async function initEnumerateAudioDevices() {
@@ -431,9 +428,9 @@ function whoAreYou() {
         inputValue: default_name,
         html: `<br />
         <div style="padding: 10px;">
-            <button id="initAudioButton" class="fas fa-microphone" onclick="handleAudio(event)"></button>
-            <button id="initVideoButton" class="fas fa-video" onclick="handleVideo(event)"></button>
-            <button id="initAudioVideoButton" class="fas fa-eye" onclick="handleAudioVideo(event)"></button>
+            <button id="initAudioButton" class="fas fa-microphone-slash" style="color:red" onclick="handleAudio(event)"></button>
+            <button id="initVideoButton" class="fas fa-video-slash" style="color:red" onclick="handleVideo(event)"></button>
+            <button id="initAudioVideoButton" class="fas fa-eye-slash" style="color:red" onclick="handleAudioVideo(event)"></button>
         </div>`,
         confirmButtonText: `Join meeting`,
         showClass: {
@@ -464,9 +461,6 @@ function whoAreYou() {
     initAudioButton = document.getElementById('initAudioButton');
     initVideoButton = document.getElementById('initVideoButton');
     initAudioVideoButton = document.getElementById('initAudioVideoButton');
-    if (!isAudioAllowed) hide(initAudioButton);
-    if (!isVideoAllowed) hide(initVideoButton);
-    if (!isAudioAllowed || !isVideoAllowed) hide(initAudioVideoButton);
     isAudioVideoAllowed = isAudioAllowed && isVideoAllowed;
 }
 
