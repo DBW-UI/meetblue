@@ -228,7 +228,7 @@ async function initEnumerateAudioDevices() {
         .getUserMedia({ audio: true })
         .then((stream) => {
             enumerateAudioDevices(stream);
-            isAudioAllowed = true;
+            isAudioAllowed = false;
         })
         .catch(() => {
             isAudioAllowed = false;
@@ -242,7 +242,7 @@ async function initEnumerateVideoDevices() {
         .getUserMedia({ video: true })
         .then((stream) => {
             enumerateVideoDevices(stream);
-            isVideoAllowed = true;
+            isVideoAllowed = false;
         })
         .catch(() => {
             isVideoAllowed = false;
