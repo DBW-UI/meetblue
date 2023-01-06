@@ -16,12 +16,12 @@
     justify-content: center;
     vertical-align: middle;
     overflow: hidden;
+    overflow-y: auto;
     /* border: 3px solid blue; */
 }
 
 #videoPinMediaContainer {
     z-index: 1;
-
     position: absolute;
     display: none;
     top: 0;
@@ -30,6 +30,7 @@
     height: 100%;
     border-radius: 5px;
     box-shadow: var(--box-shadow);
+    overflow: hidden;
     overflow-y: auto;
     /* animation: show 0.4s ease; */
     /* border: 3px solid lime; */
@@ -145,7 +146,7 @@
     .videoMenuBar button[id*="__sendFile"] {
         display: none !important;
     }
-    .videoMenuBar button[id*="__pVolume"] {
+    input {
         display: none !important;
     }
     .videoMenuBar button[id*="__video"] {
