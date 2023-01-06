@@ -289,14 +289,14 @@ class RoomClient {
         let peers = new Map(JSON.parse(room.peers));
       
         const thisPeerId= Array.from(peers.keys()).find((id) => id === this.peer_id);
-        const thisPeer =peers.get(thisPeerId).peer_info;
+        const thisPeer =peers?.get(thisPeerId)?.peer_info;
         isPresenter = !!thisPeer.is_organizer;
         participantsCount = peers.size;
         handleRules(isPresenter);
         adaptAspectRatio(participantsCount);
         for (let peer of Array.from(peers.keys()).filter((id) => id !== this.peer_id)) {
-            let peer_info = peers.get(peer).peer_info;
-            // console.log('07 ----> Remote Peer info', peer_info);
+            let peer_info = peers?.get(peer)?.peer_info;
+       
             if (!peer_info.peer_video) {
                 await this.setVideoOff(peer_info, true);
             }
@@ -1204,7 +1204,7 @@ class RoomClient {
         }
 
         let producer_id = this.producerLabel.get(type);
-        this.producers.get(producer_id).pause();
+        this.producers?.get(producer_id)?.pause();
 
         switch (type) {
             case mediaType.audio:
@@ -1227,7 +1227,7 @@ class RoomClient {
         }
 
         let producer_id = this.producerLabel.get(type);
-        this.producers.get(producer_id).resume();
+        this.producers?.get(producer_id)?.resume();
 
         switch (type) {
             case mediaType.audio:
@@ -1261,7 +1261,7 @@ class RoomClient {
 
         this.socket.emit('producerClosed', data);
 
-        this.producers.get(producer_id).close();
+        this.producers?.get(producer_id)?.close();
         this.producers.delete(producer_id);
         this.producerLabel.delete(type);
 
@@ -1801,7 +1801,7 @@ class RoomClient {
 
     event(evt) {
         if (this.eventListeners.has(evt)) {
-            this.eventListeners.get(evt).forEach((callback) => callback());
+            this.eventListeners.get(evt)?.forEach((callback) => callback());
         }
     }
 

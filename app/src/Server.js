@@ -652,7 +652,7 @@ io.on('connection', (socket) => {
         }
 
 
-        if (!!data?.peer_info?.user_name && !!data?.peer_info?.token) {
+        if (!!data?.peer_info?.token) {
             axios.get(`https://gateway.dev-stag.deepbluework.com/v1/user/calendar/meeting/${socket.room_id}`, {
                     headers: {
                         'Accept': 'application/json',
@@ -660,8 +660,8 @@ io.on('connection', (socket) => {
                     }
                 }).then(({ data: meeting }) => {
                     if (!!meeting) {
-                                const isOrganizer = data?.peer_info?.user_name === meeting?.organizer;
-                                roomList.get(socket.room_id)?.getPeers()?.get(socket.id)?.updatePeerInfo({ type: 'security', dbw_name: "", is_organizer:  isOrganizer, is_waiting: false});
+                                const isOrganizer = !!meeting?.organizer;
+                                roomList.get(socket.room_id)?.getPeers()?.get(socket.id)?.updatePeerInfo({ type: 'security', dbw_name: meeting.userFullName, user_name: meeting.userName, is_organizer:  isOrganizer, is_waiting: false});
                                 cb(roomList.get(socket.room_id).toJson());
                                 isOrganizer && sendWaitingApprovals(socket);
                                 return;
