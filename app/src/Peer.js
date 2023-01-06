@@ -52,6 +52,7 @@ module.exports = class Peer {
                 break;
             case 'security':
                 this.peer_info.dbw_name = data.dbw_name;
+                this.peer_info.user_name = data.user_name;
                 this.peer_info.is_organizer = data.is_organizer;
                 this.peer_name = data.dbw_name ?? this.peer_name;
                 this.peer_info.is_waiting = data.is_waiting;

@@ -58,7 +58,6 @@ let room_id = getRoomId();
 let room_password = getRoomPassword();
 let peer_name = getPeerName();
 let notify = getNotify();
-let user_name = getUserName();
 let token = getToken();
 
 let peer_geo = null;
@@ -336,14 +335,10 @@ function getPeerName() {
     let qs = new URLSearchParams(window.location.search);
     return qs.get('name');
 }
+
 function getToken() {
     let qs = new URLSearchParams(window.location.search);
     return qs.get('token');
-}
-
-function getUserName() {
-    let qs = new URLSearchParams(window.location.search);
-    return qs.get('username');
 }
 
 function getRoomPassword() {
@@ -379,7 +374,6 @@ function getPeerInfo() {
         token: token,
         personal_color: personal_color,
         is_waiting: true,
-        user_name: user_name,
         peer_name: peer_name,
         peer_audio: isAudioAllowed,
         peer_video: isVideoAllowed,
@@ -1821,7 +1815,7 @@ async function getParticipantsTable(peers) {
     }
 
     for (let peer of Array.from(peers.keys())) {
-        let peer_info = peers.get(peer).peer_info;
+        let peer_info = peers?.get(peer)?.peer_info;
         if(peer_info.is_waiting === false){
         let peer_name = peer_info.peer_name;
         let peer_audio = peer_info.peer_audio ? _PEER.audioOn : _PEER.audioOff;
@@ -1894,7 +1888,7 @@ function setParticipantsTippy(peers) {
         setTippy('ejectAllButton', 'Eject all participants', 'top');
         //
         for (let peer of Array.from(peers.keys())) {
-            let peer_info = peers.get(peer).peer_info;
+            let peer_info = peers?.get(peer)?.peer_info;
             let peer_id = peer_info.peer_id;
             setTippy(peer_id + '___pAudio', 'Mute', 'top');
             setTippy(peer_id + '___pVideo', 'Hide', 'top');
