@@ -146,7 +146,7 @@
     .videoMenuBar button[id*="__sendFile"] {
         display: none !important;
     }
-    input {
+    .videoMenuBar input {
         display: none !important;
     }
     .videoMenuBar button[id*="__video"] {
