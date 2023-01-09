@@ -5,7 +5,8 @@
     "main": "Server.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "node app/src/Server.js",
+        "start": "env-cmd -f .env node app/src/Server.js",
+        "start:dev": "env-cmd -f .env.local node app/src/Server.js",
         "compile": "npx browserify public/sfu/MediasoupClientCompile.js -o public/sfu/MediasoupClient.js",
         "lint": "npx prettier --write ."
     },
@@ -31,6 +32,8 @@
         "compression": "1.7.4",
         "cors": "2.8.5",
         "crypto-js": "4.1.1",
+        "dotenv": "^16.0.3",
+        "env-cmd": "^10.1.0",
         "express": "4.18.2",
         "httpolyglot": "0.1.2",
         "mediasoup": "3.11.4",

@@ -2,11 +2,11 @@ version: '3'
 
 services:
     mirotalksfu:
-        image: mirotalk/sfu:latest
+        image: dbw/meetblue:production
         build:
             context: .
             dockerfile: Dockerfile
-        container_name: mirotalksfu
+        container_name: meetblue_production
         hostname: mirotalksfu
         restart: unless-stopped
         volumes:

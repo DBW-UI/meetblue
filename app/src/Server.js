@@ -13,6 +13,7 @@
  */
 
 const express = require('express');
+const dotenv = require('dotenv');
 const cors = require('cors');
 const compression = require('compression');
 const axios = require('axios');
@@ -43,6 +44,7 @@ const slackSigningSecret = config.slack.signingSecret;
 const bodyParser = require('body-parser');
 
 const app = express();
+dotenv.config();
 
 const options = {
     key: fs.readFileSync(path.join(__dirname, config.sslKey), 'utf-8'),
@@ -653,7 +655,7 @@ io.on('connection', (socket) => {
 
 
         if (!!data?.peer_info?.token) {
-            axios.get(`https://gateway.dev-stag.deepbluework.com/v1/user/calendar/meeting/${socket.room_id}`, {
+            axios.get(`${process.env.APP_API_SERVICE_URL}/${socket.room_id}`, {
                     headers: {
                         'Accept': 'application/json',
                         'Authorization': `Bearer ${data?.peer_info?.token}`
