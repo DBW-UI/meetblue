@@ -655,8 +655,7 @@ io.on('connection', (socket) => {
 
 
         if (!!data?.peer_info?.token) {
-            console.log({ backendURL: process.env.APP_API_SERVICE_URL });
-            axios.get(`${process.env.APP_API_SERVICE_URL}/${socket.room_id}`, {
+            axios.get(`${process.env.APP_API_SERVICE_URL}/v1/user/calendar/meeting/${socket.room_id}`, {
                     headers: {
                         'Accept': 'application/json',
                         'Authorization': `Bearer ${data?.peer_info?.token}`
