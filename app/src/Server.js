@@ -655,12 +655,14 @@ io.on('connection', (socket) => {
 
 
         if (!!data?.peer_info?.token) {
+            console.log({ backendURL: process.env.APP_API_SERVICE_URL });
             axios.get(`${process.env.APP_API_SERVICE_URL}/${socket.room_id}`, {
                     headers: {
                         'Accept': 'application/json',
                         'Authorization': `Bearer ${data?.peer_info?.token}`
                     }
                 }).then(({ data: meeting }) => {
+                    console.log({ meeting });
                     if (!!meeting) {
                                 const isOrganizer = !!meeting?.organizer;
                                 roomList.get(socket.room_id)?.getPeers()?.get(socket.id)?.updatePeerInfo({ type: 'security', dbw_name: meeting.userFullName, user_name: meeting.userName, is_organizer:  isOrganizer, is_waiting: false});
