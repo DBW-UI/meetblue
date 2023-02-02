@@ -32,7 +32,7 @@
 }
 
 :root {
-    --body-bg: radial-gradient(#202641, #181d35);
+    --body-bg: radial-gradient(#202641, #181D35);
     --border: 1px solid rgb(255 255 255 / 32%);
     --border-radius: 1rem;
     --msger-top: 50%;
@@ -40,16 +40,16 @@
     --msger-height: 680px;
     --msger-width: 420px;
     --msger-bubble-width: 55%;
-    --msger-bg: radial-gradient(#202641, #181d35);
+    --msger-bg: radial-gradient(#202641, #181D35);
     --wb-width: 800px;
     --wb-height: 600px;
-    --wb-bg: radial-gradient(#202641, #181d35);
+    --wb-bg: radial-gradient(#202641, #181D35);
     --left-msg-bg: #252d31;
     --right-msg-bg: #056162;
     --private-msg-bg: #6b1226;
     --box-shadow: 0px 8px 16px 0px rgb(0 0 0);
     --btns-hover-scale: scale(1.1);
-    --settings-bg: radial-gradient(#202641, #181d35);
+    --settings-bg: radial-gradient(#202641, #181D35);
     /* buttons bar horizontal */
     /* --btns-top: 50%;
     --btns-right: 0%;
@@ -57,7 +57,7 @@
     --btns-margin-left: 0px;
     --btns-width: 60px;
     --btns-flex-direction: column; */
-    /* buttons bar horizontal */
+     /* buttons bar horizontal */
     --btns-top: 95%;
     --btns-right: 25%;
     --btns-left: 50%;
@@ -83,7 +83,7 @@ body {
     background: url('../images/wavy-background.png');
     background-size: cover;
     background-repeat: no-repeat;
-    background-position: center;
+    background-position: center
 }
 
 /*--------------------------------------------------------------
@@ -105,58 +105,21 @@ body {
 #loadingDiv {
     color: #fff;
     padding: 30px;
-    text-align: center;
     border-radius: 10px;
-    background: rgba(0, 0, 0, 0.7);
+    background: transparent;
 }
 #loadingDiv h1 {
     padding: 10px;
     font-size: 60px;
     font-family: 'Comfortaa';
+    background: rgba(0, 0, 0, 0.7);
     border-radius: 10px;
 }
-#loadingDiv img {
-    margin-top: 5px;
-    margin-bottom: 10px;
-    border-radius: 10px;
-}
-#loadingDiv pre {
+#loadingDiv p {
     padding: 10px;
     font-family: 'Comfortaa';
+    background: rgba(0, 0, 0, 0.7);
     border-radius: 10px;
-}
-
-/*--------------------------------------------------------------
-# Init User
---------------------------------------------------------------*/
-
-.init-user {
-    display: block;
-    padding: 5px;
-}
-
-.init-user select {
-    width: 100%;
-    margin-top: 15px;
-    padding: 10px;
-    background: #2c2c2c;
-    color: white;
-    border: var(--border);
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.init-user button {
-    margin-top: 20px;
-    margin-bottom: 10px;
-    width: 50px;
-    background-color: transparent;
-}
-
-.init-user button:hover {
-    color: white;
-    background-color: rgb(35, 35, 35);
-    transform: scale(1);
 }
 
 /*--------------------------------------------------------------
@@ -167,11 +130,11 @@ body {
     z-index: 3;
     position: absolute;
     display: flex !important;
-    display: -webkit-box !important;
-    display: -moz-box !important;
-    display: -ms-flexbox !important;
-    display: -webkit-flex !important;
-
+    display: -webkit-box !important;     
+    display: -moz-box !important;        
+    display: -ms-flexbox !important;      
+    display: -webkit-flex !important;    
+    
     padding: 5px;
 
     top: var(--btns-top);
@@ -198,6 +161,7 @@ body {
     background: rgba(0, 0, 0, 0.7);
     border-radius: 10px;
     border: var(--border);
+   
 }
 @media screen and (max-width: 1000px) {
     #control {
@@ -216,7 +180,7 @@ body {
     #shareButton {
         display: none !important;
     }
-}
+  }
 
 #control p {
     font-size: small;
@@ -286,7 +250,6 @@ body {
     height: 40px;
     color: #fff;
     background-color: transparent;
-    border: var(--border);
     border-radius: 5px;
     cursor: pointer;
 }
@@ -320,7 +283,7 @@ body {
 --------------------------------------------------------------*/
 .tab {
     overflow: hidden;
-    background-color: #181d35;
+    background-color: #181D35;
 }
 
 /* Style the buttons inside the tab */
@@ -354,26 +317,8 @@ body {
 }
 
 .tabcontent button i {
-    padding: 10px;
     border: var(--border);
-    border-radius: 5px;
-}
-
-.tabcontent button {
-    margin-top: 5px;
-    width: 100%;
-    text-align: left;
-}
-
-.tabcontent button:hover {
-    background-color: #121212;
-    transform: scale(1);
-}
-
-#sessionTimeButton {
-    width: auto;
-    margin-top: 10px;
-    text-align: right;
+    border-radius: var(--border-radius);
 }
 
 /* on open display devices tab */
@@ -651,10 +596,6 @@ em-emoji-picker {
     background-color: transparent !important;
 }
 
-.swal2-input {
-    border: var(--border) !important;
-}
-
 .swal2-popup {
     /* border: var(--border) !important; */
     border: 0.5px solid rgb(255 255 255 / 32%) !important;
@@ -710,11 +651,6 @@ em-emoji-picker {
 /*--------------------------------------------------------------
 # Common
 --------------------------------------------------------------*/
-
-select {
-    height: 40px;
-    line-height: 40px;
-}
 
 .hidden {
     display: none;
@@ -918,12 +854,11 @@ button:hover {
 #receiveFileDiv {
     z-index: 8;
     display: none;
-    padding: 20px;
+    padding: 10px;
     margin: auto;
     min-width: 320px;
     background: var(--body-bg);
-    border: var(--border);
-    border-radius: var(--border-radius);
+    border-radius: 5px;
     color: #fff;
     overflow: hidden;
 }
@@ -986,6 +921,7 @@ progress {
     margin: 2px;
     border-radius: 5px;
     border: var(--border);
+   
 }
 @media screen and (max-width: 1000px) {
     .whiteboard-header button {
@@ -994,7 +930,7 @@ progress {
         padding: 6px;
         margin: 2px;
         font-size: 12px;
-    }
+    }   
 }
 
 .whiteboardColorPicker {

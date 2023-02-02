@@ -99,8 +99,6 @@ module.exports = class Peer {
 
         producer.appData.mediaType = type;
 
-        //log.debug('Producer type ----->', producer.type);
-
         this.producers.set(producer.id, producer);
 
         producer.on(
@@ -144,8 +142,6 @@ module.exports = class Peer {
         } catch (error) {
             return console.error('Consume failed', error);
         }
-
-        //console.log('Consumer type ----->', consumer.type);
 
         if (consumer.type === 'simulcast') {
             await consumer.setPreferredLayers({

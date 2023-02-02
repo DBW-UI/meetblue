@@ -16,7 +16,6 @@ const BUTTONS = {
         startScreenButton: true,
         swapCameraButton: true,
         chatButton: true,
-        participantsButton: true,
         whiteboardButton: true,
         settingsButton: true,
         exitButton: true,

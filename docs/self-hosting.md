@@ -1,12 +1,11 @@
 # MiroTalk SFU - Self Hosting
 
-## Requirements
+## Requirments
 
 -   Recommended: [Hetzner](https://www.hetzner.com/cloud) (`CPX11` it's enough, OS: `Ubuntu 20.04`) use [this link](https://hetzner.cloud/?ref=XdRifCzCK3bn) to receive `€⁠20 in cloud credits`.
--   [Node.js](https://nodejs.org/en/) at least 16x, better `16.15.1 LTS` & npm
+-   [Node.js](https://nodejs.org/en/) at least 12x, better `16.15.1 LTS` & npm
 -   Your domain name, example: `your.domain.name`
     -   Set a DNS A record for that domain that point to Your Server public IPv4
-        > DNS A Record: The Address Mapping record (or DNS host record) stores a hostname and its corresponding IPv4 address. When users search for your website, the A record redirects this traffic from the web address (xxxxx.com – human-readable domain) to the IPv4 address.
 
 ---
 
@@ -254,7 +253,7 @@ Make the script executable
 $ chmod +x sfuUpdate.sh
 ```
 
-Follow the commits of the MiroTalk SFU project [here](https://github.com/miroslavpejic85/mirotalksfu/commits/main)
+Follow the commits of the MiroTalk SFU project [here](https://github.com/miroslavpejic85/mirotalksfu/commits/master)
 
 To update your instance of MiroTalk SFU at latest commit, execute:
 
