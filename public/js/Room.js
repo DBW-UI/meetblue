@@ -62,7 +62,7 @@ let token = getToken();
 
 let peer_geo = null;
 let peer_info = null;
-let personal_color= Math.floor(Math.random()*16777215).toString(16);
+let personal_color = Math.floor(Math.random() * 16777215).toString(16);
 
 let isSoundEnabled = true;
 let isLobbyEnabled = true;
@@ -99,6 +99,8 @@ let isButtonsBarOver = false;
 
 let isRoomLocked = false;
 
+let initStream = null;
+
 // ####################################################
 // INIT ROOM
 // ####################################################
@@ -129,7 +131,6 @@ function initClient() {
         setTippy('tabLanguagesBtn', 'Languages', 'top');
         setTippy('lobbyAcceptAllBtn', 'Accept', 'top');
         setTippy('lobbyRejectAllBtn', 'Reject', 'top');
-   
         setTippy('switchSounds', 'Toggle the sounds notifications', 'right');
         setTippy('whiteboardGhostButton', 'Toggle transparent background', 'bottom');
         setTippy('wbBackgroundColorEl', 'Background color', 'bottom');
@@ -211,10 +212,10 @@ async function initEnumerateDevices() {
     console.log('01 ----> init Enumerate Devices');
     await initEnumerateAudioDevices();
     await initEnumerateVideoDevices();
-        hide(loadingDiv);
-        getPeerGeoLocation();
-        whoAreYou();
-    
+    hide(loadingDiv);
+    getPeerGeoLocation();
+    whoAreYou();
+
 }
 
 async function initEnumerateAudioDevices() {
@@ -277,17 +278,63 @@ function enumerateVideoDevices(stream) {
         .then((devices) =>
             devices.forEach((device) => {
                 let el = null;
+                let eli = null;
                 if ('videoinput' === device.kind) {
                     el = videoSelect;
-                    RoomClient.DEVICES_COUNT.video++;
+                    eli = initVideoSelect;
+                    lS.DEVICES_COUNT.video++;
                 }
                 if (!el) return;
-                addChild(device, el);
+                addChild(device, [el, eli]);
             }),
         )
         .then(() => {
             stopTracks(stream);
             isEnumerateVideoDevices = true;
+        });
+}
+
+async function initEnumerateAudioDevices() {
+    if (isEnumerateAudioDevices) return;
+    // allow the audio
+    await navigator.mediaDevices
+        .getUserMedia({ audio: true })
+        .then((stream) => {
+            enumerateAudioDevices(stream);
+            isAudioAllowed = true;
+        })
+        .catch(() => {
+            isAudioAllowed = false;
+        });
+}
+
+function enumerateAudioDevices(stream) {
+    console.log('02 ----> Get Audio Devices');
+    navigator.mediaDevices
+        .enumerateDevices()
+        .then((devices) =>
+            devices.forEach((device) => {
+                let el = null;
+                let eli = null;
+                if ('audioinput' === device.kind) {
+                    el = microphoneSelect;
+                    eli = initMicrophoneSelect;
+                    lS.DEVICES_COUNT.audio++;
+                } else if ('audiooutput' === device.kind) {
+                    el = speakerSelect;
+                    eli = initSpeakerSelect;
+                    lS.DEVICES_COUNT.speaker++;
+                }
+                if (!el) return;
+                addChild(device, [el, eli]);
+            }),
+        )
+        .then(() => {
+            stopTracks(stream);
+            isEnumerateAudioDevices = true;
+            const sinkId = 'sinkId' in HTMLMediaElement.prototype;
+            speakerSelect.disabled = !sinkId;
+            if (!sinkId) hide(initSpeakerSelect);
         });
 }
 
@@ -297,11 +344,26 @@ function stopTracks(stream) {
     });
 }
 
-function addChild(device, el) {
-    let option = document.createElement('option');
-    option.value = device.deviceId;
-    option.innerText = device.label;
-    el.appendChild(option);
+function addChild(device, els) {
+    let kind = device.kind;
+    els.forEach((el) => {
+        let option = document.createElement('option');
+        option.value = device.deviceId;
+        switch (kind) {
+            case 'videoinput':
+                option.innerHTML = `📹 ` + device.label || `📹 camera ${el.length + 1}`;
+                break;
+            case 'audioinput':
+                option.innerHTML = `🎤 ` + device.label || `🎤 microphone ${el.length + 1}`;
+                break;
+            case 'audiooutput':
+                option.innerHTML = `🔈 ` + device.label || `🔈 speaker ${el.length + 1}`;
+                break;
+            default:
+                break;
+        }
+        el.appendChild(option);
+    });
 }
 
 // ####################################################
@@ -398,6 +460,10 @@ function getPeerGeoLocation() {
 
 function whoAreYou() {
     console.log('04 ----> Who are you');
+    sound('open');
+
+    hide(loadingDiv);
+    document.body.style.background = 'var(--body-bg)';
 
     if (peer_name) {
         checkMedia();
@@ -411,6 +477,9 @@ function whoAreYou() {
         default_name = getCookie(room_id + '_name');
     }
 
+    const initUser = document.getElementById('initUser');
+    initUser.classList.toggle('hidden');
+
     Swal.fire({
         allowOutsideClick: false,
         allowEscapeKey: false,
@@ -420,12 +489,7 @@ function whoAreYou() {
         input: 'text',
         inputPlaceholder: 'Enter your name',
         inputValue: default_name,
-        html: `<br />
-        <div style="padding: 10px;">
-            <button id="initAudioButton" class="fas fa-microphone-slash" style="color:red" onclick="handleAudio(event)"></button>
-            <button id="initVideoButton" class="fas fa-video-slash" style="color:red" onclick="handleVideo(event)"></button>
-            <button id="initAudioVideoButton" class="fas fa-eye-slash" style="color:red" onclick="handleAudioVideo(event)"></button>
-        </div>`,
+        html: initUser,
         confirmButtonText: `Join meeting`,
         showClass: {
             popup: 'animate__animated animate__fadeInDown',
@@ -442,6 +506,10 @@ function whoAreYou() {
             peer_name = name;
         },
     }).then(() => {
+        if (initStream) {
+            stopTracks(initStream);
+            hide(initVideo);
+        }
         getPeerInfo();
         joinRoom(peer_name, room_id);
     });
@@ -463,6 +531,7 @@ function handleAudio(e) {
     e.target.className = 'fas fa-microphone' + (isAudioAllowed ? '' : '-slash');
     setColor(e.target, isAudioAllowed ? 'white' : 'red');
     setColor(startAudioButton, isAudioAllowed ? 'white' : 'red');
+    checkInitAudio(isAudioAllowed);
 }
 
 function handleVideo(e) {
@@ -470,6 +539,7 @@ function handleVideo(e) {
     e.target.className = 'fas fa-video' + (isVideoAllowed ? '' : '-slash');
     setColor(e.target, isVideoAllowed ? 'white' : 'red');
     setColor(startVideoButton, isVideoAllowed ? 'white' : 'red');
+    checkInitVideo(isVideoAllowed);
 }
 
 function handleAudioVideo(e) {
@@ -488,6 +558,28 @@ function handleAudioVideo(e) {
     setColor(initVideoButton, isVideoAllowed ? 'white' : 'red');
     setColor(startAudioButton, isAudioAllowed ? 'white' : 'red');
     setColor(startVideoButton, isVideoAllowed ? 'white' : 'red');
+    checkInitVideo(isVideoAllowed);
+    checkInitAudio(isAudioAllowed);
+}
+
+function checkInitVideo(isVideoAllowed) {
+    if (isVideoAllowed) {
+        if (initVideoSelect.value) changeCamera(initVideoSelect.value);
+        sound('joined');
+    } else {
+        if (initStream) {
+            stopTracks(initStream);
+            hide(initVideo);
+            sound('left');
+        }
+    }
+    initVideoSelect.disabled = !isVideoAllowed;
+}
+
+function checkInitAudio(isAudioAllowed) {
+    initMicrophoneSelect.disabled = !isAudioAllowed;
+    initSpeakerSelect.disabled = !isAudioAllowed;
+    isAudioAllowed ? sound('joined') : sound('left');
 }
 
 function checkMedia() {
@@ -513,7 +605,7 @@ function checkMedia() {
 async function shareRoom(useNavigator = false) {
     if (navigator.share && useNavigator) {
         try {
-            await navigator.share({ url: (RoomURL.split('?')[0])+'?room='+ room_id });
+            await navigator.share({ url: (RoomURL.split('?')[0]) + '?room=' + room_id });
             userLog('info', 'Room Shared successfully', 'top-end');
         } catch (err) {
             share();
@@ -527,24 +619,24 @@ async function shareRoom(useNavigator = false) {
         Swal.fire({
             background: swalBackground,
             position: 'center',
-            title: '<strong>Welcome ' + peer_name + '</strong>',
-            html:
-                `
-            <br/>
+            title: 'Share the room',
+            html: `
             <div id="qrRoomContainer">
                 <canvas id="qrRoom"></canvas>
             </div>
             <br/><br/>
             <p style="background:transparent; color:white;">Share the link or QR code to invite others</p>
             <p style="background:transparent; color:rgb(8, 189, 89);">` +
-                (RoomURL.split('?')[0]) +'?room='+ room_id +
+                (RoomURL.split('?')[0]) + '?room=' + room_id +
                 `</p>`,
             showDenyButton: false,
             showCancelButton: true,
+            cancelButtonColor: 'red',
+            denyButtonColor: 'green',
             confirmButtonText: `Copy URL`,
             cancelButtonText: `Close`,
             showClass: {
-                popup: 'animate__animated animate__fadeInUp',
+                popup: 'animate__animated animate__fadeInDown',
             },
             hideClass: {
                 popup: 'animate__animated animate__fadeOutUp',
@@ -563,20 +655,19 @@ async function shareRoom(useNavigator = false) {
 // ####################################################
 
 function makeRoomQR() {
-    let qrSize = DetectRTC.isMobileDevice ? 128 : 256;
     let qr = new QRious({
         element: document.getElementById('qrRoom'),
-        value: (RoomURL.split('?')[0]) +'?room='+ room_id,
+        value: (RoomURL.split('?')[0]) + '?room=' + room_id,
     });
     qr.set({
-        size: qrSize,
+        size: 256,
     });
 }
 
 function copyRoomURL() {
     let tmpInput = document.createElement('input');
     document.body.appendChild(tmpInput);
-    tmpInput.value = (RoomURL.split('?')[0]) +'?room='+ room_id;
+    tmpInput.value = (RoomURL.split('?')[0]) + '?room=' + room_id;
     tmpInput.select();
     tmpInput.setSelectionRange(0, 99999); // For mobile devices
     navigator.clipboard.writeText(tmpInput.value);
@@ -631,6 +722,7 @@ function roomIsReady() {
     //     hide(tabRecordingBtn);
     // }
     BUTTONS.main.chatButton && show(chatButton);
+    BUTTONS.main.participantsButton && show(participantsButton);
     !BUTTONS.chat.chatSaveButton && hide(chatSaveButton);
     BUTTONS.chat.chatEmojiButton && show(chatEmojiButton);
     BUTTONS.chat.chatMarkdownButton && show(chatMarkdownButton);
@@ -960,7 +1052,6 @@ function handleButtons() {
         whiteboardAction(getWhiteboardAction('close'));
     };
     participantsButton.onclick = () => {
-        rc.toggleMySettings();
         getRoomParticipants();
     };
     participantsCloseBtn.onclick = () => {
@@ -976,8 +1067,103 @@ function handleButtons() {
 }
 
 // ####################################################
-// HTML SELECTS
+// HANDLE INIT USER
 // ####################################################
+
+function setButtonsInit() {
+    if (!DetectRTC.isMobileDevice) {
+        setTippy('initAudioButton', 'Toggle the audio', 'left');
+        setTippy('initVideoButton', 'Toggle the video', 'right');
+        setTippy('initAudioVideoButton', 'Toggle the audio & video', 'right');
+    }
+    initAudioButton = document.getElementById('initAudioButton');
+    initVideoButton = document.getElementById('initVideoButton');
+    initAudioVideoButton = document.getElementById('initAudioVideoButton');
+    if (!isAudioAllowed) hide(initAudioButton);
+    if (!isVideoAllowed) hide(initVideoButton);
+    if (!isAudioAllowed || !isVideoAllowed) hide(initAudioVideoButton);
+    isAudioVideoAllowed = isAudioAllowed && isVideoAllowed;
+}
+
+function handleSelectsInit() {
+    // devices init options
+    initVideoSelect.onchange = () => {
+        changeCamera(initVideoSelect.value);
+        videoSelect.selectedIndex = initVideoSelect.selectedIndex;
+        lS.setLocalStorageDevices(lS.MEDIA_TYPE.video, videoSelect.selectedIndex, videoSelect.value);
+    };
+    initMicrophoneSelect.onchange = () => {
+        microphoneSelect.selectedIndex = initMicrophoneSelect.selectedIndex;
+        lS.setLocalStorageDevices(lS.MEDIA_TYPE.audio, microphoneSelect.selectedIndex, microphoneSelect.value);
+    };
+    initSpeakerSelect.onchange = () => {
+        speakerSelect.selectedIndex = initSpeakerSelect.selectedIndex;
+        lS.setLocalStorageDevices(lS.MEDIA_TYPE.speaker, initSpeakerSelect.selectedIndex, initSpeakerSelect.value);
+    };
+}
+
+function setSelectsInit() {
+    const localStorageDevices = lS.getLocalStorageDevices();
+    console.log('04 ----> Get Local Storage Devices before', localStorageDevices);
+    if (localStorageDevices) {
+        initMicrophoneSelect.selectedIndex = localStorageDevices.audio.index;
+        initSpeakerSelect.selectedIndex = localStorageDevices.speaker.index;
+        initVideoSelect.selectedIndex = localStorageDevices.video.index;
+        //
+        microphoneSelect.selectedIndex = initMicrophoneSelect.selectedIndex;
+        speakerSelect.selectedIndex = initSpeakerSelect.selectedIndex;
+        videoSelect.selectedIndex = initVideoSelect.selectedIndex;
+        //
+        if (lS.DEVICES_COUNT.audio != localStorageDevices.audio.count) {
+            console.log('04.1 ----> Audio devices seems changed, use default index 0');
+            initMicrophoneSelect.selectedIndex = 0;
+            microphoneSelect.selectedIndex = 0;
+            lS.setLocalStorageDevices(
+                lS.MEDIA_TYPE.audio,
+                initMicrophoneSelect.selectedIndex,
+                initMicrophoneSelect.value,
+            );
+        }
+        if (lS.DEVICES_COUNT.speaker != localStorageDevices.speaker.count) {
+            console.log('04.2 ----> Speaker devices seems changed, use default index 0');
+            initSpeakerSelect.selectedIndex = 0;
+            speakerSelect.selectedIndex = 0;
+            lS.setLocalStorageDevices(
+                lS.MEDIA_TYPE.speaker,
+                initSpeakerSelect.selectedIndexIndex,
+                initSpeakerSelect.value,
+            );
+        }
+        if (lS.DEVICES_COUNT.video != localStorageDevices.video.count) {
+            console.log('04.3 ----> Video devices seems changed, use default index 0');
+            initVideoSelect.selectedIndex = 0;
+            videoSelect.selectedIndex = 0;
+            lS.setLocalStorageDevices(lS.MEDIA_TYPE.video, initVideoSelect.selectedIndex, initVideoSelect.value);
+        }
+        //
+        console.log('04.4 ----> Get Local Storage Devices after', lS.getLocalStorageDevices());
+    }
+    if (initVideoSelect.value) changeCamera(initVideoSelect.value);
+}
+
+function changeCamera(deviceId) {
+    if (initStream) {
+        stopTracks(initStream);
+        show(initVideo);
+    }
+    navigator.mediaDevices
+        .getUserMedia({ video: { deviceId: deviceId } })
+        .then((camStream) => {
+            initVideo.className = 'mirror';
+            initVideo.srcObject = camStream;
+            initStream = camStream;
+            console.log('04.5 ----> Success attached init video stream');
+        })
+        .catch((err) => {
+            console.error('[Error] changeCamera', err);
+            userLog('error', 'Error while swapping camera' + err.tostring(), 'top-end');
+        });
+}
 
 function handleSelects() {
     // devices options
@@ -1000,7 +1186,7 @@ function handleSelects() {
     switchSounds.onchange = (e) => {
         isSoundEnabled = e.currentTarget.checked;
     };
- 
+
     // styling
     BtnsAspectRatio.onchange = () => {
         setAspectRatio(BtnsAspectRatio.value);
@@ -1219,7 +1405,7 @@ function handleRoomClientEvents() {
     // });
     rc.on(RoomClient.EVENTS.exitRoom, () => {
         let qs = new URLSearchParams(window.location.search);
-        const token= qs.get('token');
+        const token = qs.get('token');
         if (!token) {
             location.reload();
         } else {
@@ -1377,7 +1563,7 @@ function setupWhiteboard() {
 
 function setupWhiteboardCanvas() {
     wbCanvas = new fabric.Canvas('wbCanvas');
-    wbCanvas.freeDrawingBrush.color = '#'+personal_color;
+    wbCanvas.freeDrawingBrush.color = '#' + personal_color;
     wbCanvas.freeDrawingBrush.width = 3;
     whiteboardIsDrawingMode(true);
 }
@@ -1816,18 +2002,18 @@ async function getParticipantsTable(peers) {
 
     for (let peer of Array.from(peers.keys())) {
         let peer_info = peers?.get(peer)?.peer_info;
-        if(peer_info.is_waiting === false){
-        let peer_name = peer_info.peer_name;
-        let peer_audio = peer_info.peer_audio ? _PEER.audioOn : _PEER.audioOff;
-        let peer_video = peer_info.peer_video ? _PEER.videoOn : _PEER.videoOff;
-        let peer_hand = peer_info.peer_hand ? _PEER.raiseHand : _PEER.lowerHand;
-        let peer_eject = _PEER.ejectPeer;
-        let peer_sendFile = _PEER.sendFile;
-        let peer_sendMsg = _PEER.sendMsg;
-        let peer_id = peer_info.peer_id;
-        let avatarImg = getParticipantAvatar(peer_name, peer_info.personal_color);
-        if (rc.peer_id === peer_id) {
-            table += `
+        if (peer_info.is_waiting === false) {
+            let peer_name = peer_info.peer_name;
+            let peer_audio = peer_info.peer_audio ? _PEER.audioOn : _PEER.audioOff;
+            let peer_video = peer_info.peer_video ? _PEER.videoOn : _PEER.videoOff;
+            let peer_hand = peer_info.peer_hand ? _PEER.raiseHand : _PEER.lowerHand;
+            let peer_eject = _PEER.ejectPeer;
+            let peer_sendFile = _PEER.sendFile;
+            let peer_sendMsg = _PEER.sendMsg;
+            let peer_id = peer_info.peer_id;
+            let avatarImg = getParticipantAvatar(peer_name, peer_info.personal_color);
+            if (rc.peer_id === peer_id) {
+                table += `
             <tr id='${peer_name}'>
                 <td><img src='${avatarImg}'></td>
                 <td>${peer_name} (me)</td>
@@ -1840,9 +2026,9 @@ async function getParticipantsTable(peers) {
                 <td></td>
             </tr>
             `;
-        } else {
-            if (isRulesActive && isPresenter) {
-                table += `
+            } else {
+                if (isRulesActive && isPresenter) {
+                    table += `
                 <tr id='${peer_id}'>
                     <td><img src='${avatarImg}'></td>
                     <td>${peer_name}</td>
@@ -1855,8 +2041,8 @@ async function getParticipantsTable(peers) {
                     <td><button id='${peer_id}___pEject' onclick="rc.peerAction('me',this.id,'eject')">${peer_eject}</button></td>
                 </tr>
                 `;
-            } else {
-                table += `
+                } else {
+                    table += `
                 <tr id='${peer_id}'>
                     <td><img src='${avatarImg}'></td>
                     <td>${peer_name}</td>
@@ -1869,9 +2055,9 @@ async function getParticipantsTable(peers) {
                     <td></td>
                 </tr>
                 `;
+                }
             }
         }
-    }
     }
     table += `</table>`;
     return table;
@@ -1906,7 +2092,7 @@ function refreshParticipantsCount(count, adapt = true) {
 }
 
 function getParticipantAvatar(peerName, personal_color) {
-    return cfg.msgAvatar + '?name=' + peerName + '&size=32' + '&background='+personal_color+'&rounded=true';
+    return cfg.msgAvatar + '?name=' + peerName + '&size=32' + '&background=' + personal_color + '&rounded=true';
 }
 
 // ####################################################
@@ -2017,17 +2203,16 @@ function showAbout() {
 
     Swal.fire({
         background: swalBackground,
-        imageUrl: swalImageUrl,
-        imageWidth: 300,
-        imageHeight: 150,
+        imageUrl: image.about,
         position: 'center',
+        title: 'WebRTC SFU',
         html: `
         <br/>
         <div id="about">
            </div>
         `,
         showClass: {
-            popup: 'animate__animated animate__fadeInUp',
+            popup: 'animate__animated animate__fadeInDown',
         },
         hideClass: {
             popup: 'animate__animated animate__fadeOutUp',

@@ -53,30 +53,6 @@ const mediaType = {
     speaker: 'speakerType',
 };
 
-const LOCAL_STORAGE_DEVICES = {
-    audio: {
-        count: 0,
-        index: 0,
-        select: null,
-    },
-    speaker: {
-        count: 0,
-        index: 0,
-        select: null,
-    },
-    video: {
-        count: 0,
-        index: 0,
-        select: null,
-    },
-};
-
-const DEVICES_COUNT = {
-    audio: 0,
-    speaker: 0,
-    video: 0,
-};
-
 const _EVENTS = {
     openRoom: 'openRoom',
     exitRoom: 'exitRoom',
@@ -260,7 +236,7 @@ class RoomClient {
                         this.event(_EVENTS.roomLock);
                         console.log('00-WARNING ----> Room is Locked, Try to unlock by the password');
                         return this.unlockTheRoom();
-                    }  
+                    }
                     if (room === 'isLobby') {
                         this.event(_EVENTS.lobbyOn);
                         console.log('00-WARNING ----> Room Lobby Enabled, Wait to confirm my join');
@@ -287,16 +263,16 @@ class RoomClient {
 
     async handleRoomInfo(room) {
         let peers = new Map(JSON.parse(room.peers));
-      
-        const thisPeerId= Array.from(peers.keys()).find((id) => id === this.peer_id);
-        const thisPeer =peers?.get(thisPeerId)?.peer_info;
+
+        const thisPeerId = Array.from(peers.keys()).find((id) => id === this.peer_id);
+        const thisPeer = peers?.get(thisPeerId)?.peer_info;
         isPresenter = !!thisPeer.is_organizer;
         participantsCount = peers.size;
         handleRules(isPresenter);
         adaptAspectRatio(participantsCount);
         for (let peer of Array.from(peers.keys()).filter((id) => id !== this.peer_id)) {
             let peer_info = peers?.get(peer)?.peer_info;
-       
+
             if (!peer_info.peer_video) {
                 await this.setVideoOff(peer_info, true);
             }
@@ -312,7 +288,7 @@ class RoomClient {
             }
             sound('joined');
         }
-    
+
     }
 
     async loadDevice(routerRtpCapabilities) {
@@ -639,30 +615,7 @@ class RoomClient {
     // ####################################################
 
     startLocalMedia() {
-        let localStorageDevices = this.getLocalStorageDevices();
-        console.log('08 ----> Get Local Storage Devices before', localStorageDevices);
-        if (localStorageDevices) {
-            microphoneSelect.selectedIndex = localStorageDevices.audio.index;
-            speakerSelect.selectedIndex = localStorageDevices.speaker.index;
-            videoSelect.selectedIndex = localStorageDevices.video.index;
-            //
-            if (DEVICES_COUNT.audio != localStorageDevices.audio.count) {
-                console.log('08.1 ----> Audio devices seems changed, use default index 0');
-                microphoneSelect.selectedIndex = 0;
-                this.setLocalStorageDevices(mediaType.audio, microphoneSelect.selectedIndex, microphoneSelect.value);
-            }
-            if (DEVICES_COUNT.speaker != localStorageDevices.speaker.count) {
-                console.log('08.2 ----> Speaker devices seems changed, use default index 0');
-                speakerSelect.selectedIndex = 0;
-                this.setLocalStorageDevices(mediaType.speaker, speakerSelect.selectedIndex, speakerSelect.value);
-            }
-            if (DEVICES_COUNT.video != localStorageDevices.video.count) {
-                console.log('08.3 ----> Video devices seems changed, use default index 0');
-                videoSelect.selectedIndex = 0;
-                this.setLocalStorageDevices(mediaType.video, videoSelect.selectedIndex, videoSelect.value);
-            }
-            console.log('08.4 ----> Get Local Storage Devices after', this.getLocalStorageDevices());
-        }
+        console.log('08 ----> Start local media');
         if (this.isAudioAllowed) {
             console.log('09 ----> Start audio media');
             this.produce(mediaType.audio, microphoneSelect.value);
@@ -970,9 +923,12 @@ class RoomClient {
 
         switch (videoQuality.value) {
             case 'default':
+                // This will make the browser use HD Video and 30fps as default.
                 videoConstraints = {
                     audio: false,
                     video: {
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
                         deviceId: deviceId,
                         aspectRatio: 1.777,
                         frameRate: frameRate,
@@ -1073,17 +1029,17 @@ class RoomClient {
             {
                 rid: 'r0',
                 maxBitrate: 100000,
-                scalabilityMode: 'S1T3',
+                scalabilityMode: 'S3T3',
             },
             {
                 rid: 'r1',
                 maxBitrate: 300000,
-                scalabilityMode: 'S1T3',
+                scalabilityMode: 'S3T3',
             },
             {
                 rid: 'r2',
                 maxBitrate: 900000,
-                scalabilityMode: 'S1T3',
+                scalabilityMode: 'S3T3',
             },
         ];
     }
@@ -1790,7 +1746,7 @@ class RoomClient {
                     console.error('Attach SinkId error: ', errorMessage);
                     this.userLog('error', errorMessage, 'top-end');
                     speakerSelect.selectedIndex = 0;
-                    this.setLocalStorageDevices(mediaType.speaker, 0, speakerSelect.value);
+                    lS.setLocalStorageDevices(lS.MEDIA_TYPE.speaker, 0, speakerSelect.value);
                 });
         } else {
             let error = `Browser seems doesn't support output device selection.`;
@@ -1828,7 +1784,7 @@ class RoomClient {
             let avatarImgSize = 250;
             elem.setAttribute(
                 'src',
-                cfg.msgAvatar + '?name=' + peer_name + '&size=' + avatarImgSize + '&background='+personal_color+'&rounded=true',
+                cfg.msgAvatar + '?name=' + peer_name + '&size=' + avatarImgSize + '&background=' + personal_color + '&rounded=true',
             );
         } else {
             elem.setAttribute('src', image.avatar);
@@ -2069,9 +2025,9 @@ class RoomClient {
             el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullScreen;
         if (document.fullscreenEnabled) {
             document.fullscreenElement ||
-            document.webkitFullscreenElement ||
-            document.mozFullScreenElement ||
-            document.msFullscreenElement
+                document.webkitFullscreenElement ||
+                document.mozFullScreenElement ||
+                document.msFullscreenElement
                 ? document.exitFullscreen()
                 : el.requestFullscreen();
         }
@@ -2416,7 +2372,7 @@ class RoomClient {
         if (!this.thereIsParticipants()) {
             isChatPasteTxt = false;
             this.cleanMessage();
-            return this.userLog('info', 'No participants in the room expect you', 'top-end');
+            return this.userLog('info', 'No participants in the room except you', 'top-end');
         }
         Swal.fire({
             background: swalBackground,
@@ -2446,7 +2402,7 @@ class RoomClient {
                     personal_color: this.peer_info?.personal_color,
                     peer_msg: peer_msg,
                 };
-                
+
                 this.socket.emit('message', data);
                 this.setMsgAvatar('right', this.peer_name, data?.personal_color);
                 this.appendMessage(
@@ -2481,8 +2437,8 @@ class RoomClient {
         this.sound('message');
     }
 
-    setMsgAvatar(avatar, peerName,personal_color) {
-        let avatarImg = cfg.msgAvatar + '?name=' + peerName + '&size=32' + '&background='+personal_color+'&rounded=true';
+    setMsgAvatar(avatar, peerName, personal_color) {
+        let avatarImg = cfg.msgAvatar + '?name=' + peerName + '&size=32' + '&background=' + personal_color + '&rounded=true';
         avatar === 'left' ? (this.leftMsgAvatar = avatarImg) : (this.rightMsgAvatar = avatarImg);
     }
 
@@ -2599,7 +2555,7 @@ class RoomClient {
     isHtml(str) {
         var a = document.createElement('div');
         a.innerHTML = str;
-        for (var c = a.childNodes, i = c.length; i--; ) {
+        for (var c = a.childNodes, i = c.length; i--;) {
             if (c[i].nodeType == 1) return true;
         }
         return false;
@@ -3251,7 +3207,7 @@ class RoomClient {
             }
         });
     }
-isPresenter
+    isPresenter
     getVideoType(url) {
         if (url.endsWith('.mp4')) return 'video/mp4';
         if (url.endsWith('.mp3')) return 'video/mp3';
@@ -4151,59 +4107,30 @@ isPresenter
             this.setTippy(
                 id,
                 '<pre>' +
-                    JSON.stringify(
-                        peer_info,
-                        [
-                            'peer_id',
-                            'peer_name',
-                            'peer_audio',
-                            'peer_video',
-                            'peer_screen',
-                            'peer_hand',
-                            'is_desktop_device',
-                            'is_mobile_device',
-                            'is_ipad_pro_device',
-                            'os_name',
-                            'os_version',
-                            'browser_name',
-                            'browser_version',
-                            //'user_agent',
-                        ],
-                        2,
-                    ) +
-                    '<pre/>',
+                JSON.stringify(
+                    peer_info,
+                    [
+                        'peer_id',
+                        'peer_name',
+                        'peer_audio',
+                        'peer_video',
+                        'peer_screen',
+                        'peer_hand',
+                        'is_desktop_device',
+                        'is_mobile_device',
+                        'is_ipad_pro_device',
+                        'os_name',
+                        'os_version',
+                        'browser_name',
+                        'browser_version',
+                        //'user_agent',
+                    ],
+                    2,
+                ) +
+                '<pre/>',
                 'top-start',
                 true,
             );
         }
-    }
-
-    // ####################################################
-    // LOCAL STORAGE DEVICES
-    // ####################################################
-
-    setLocalStorageDevices(type, index, select) {
-        switch (type) {
-            case RoomClient.mediaType.audio:
-                LOCAL_STORAGE_DEVICES.audio.count = DEVICES_COUNT.audio;
-                LOCAL_STORAGE_DEVICES.audio.index = index;
-                LOCAL_STORAGE_DEVICES.audio.select = select;
-                break;
-            case RoomClient.mediaType.video:
-                LOCAL_STORAGE_DEVICES.video.count = DEVICES_COUNT.video;
-                LOCAL_STORAGE_DEVICES.video.index = index;
-                LOCAL_STORAGE_DEVICES.video.select = select;
-                break;
-            case RoomClient.mediaType.speaker:
-                LOCAL_STORAGE_DEVICES.speaker.count = DEVICES_COUNT.speaker;
-                LOCAL_STORAGE_DEVICES.speaker.index = index;
-                LOCAL_STORAGE_DEVICES.speaker.select = select;
-                break;
-        }
-        localStorage.setItem('LOCAL_STORAGE_DEVICES', JSON.stringify(LOCAL_STORAGE_DEVICES));
-    }
-
-    getLocalStorageDevices() {
-        return JSON.parse(localStorage.getItem('LOCAL_STORAGE_DEVICES'));
     }
 }
