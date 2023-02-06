@@ -1219,12 +1219,29 @@ function handleRoomClientEvents() {
     // });
     rc.on(RoomClient.EVENTS.exitRoom, () => {
         let qs = new URLSearchParams(window.location.search);
-        const token= qs.get('token');
-        if (!token) {
-            location.reload();
-        } else {
+        Swal.fire({
+            background: swalBackground,
+            position: 'center',
+            title: '<strong>Leaving Meeting?</strong>',
+            html:``,
+            showDenyButton: false,
+            showCancelButton: true,
+            confirmButtonText: `Rejoin`,
+            cancelButtonText: `Leave`,
+            showClass: {
+                popup: 'animate__animated animate__fadeInUp',
+            },
+            hideClass: {
+                popup: 'animate__animated animate__fadeOutUp',
+            },
+        }).then((result) => {
+            if (result.isConfirmed) {
+                location.reload();
+            } else {
+                
             openURL('https://deepbluework.com/');
-        }
+            }
+        });
     });
 }
 
