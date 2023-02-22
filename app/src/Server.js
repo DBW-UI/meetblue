@@ -197,11 +197,19 @@ app.use((err, req, res, next) => {
 // });
 
 // no room name specified to join || direct join
-app.get('/', (req, res) => {
-    if (hostCfg.authenticated && Object.keys(req.query).length > 0) {
-        log.debug('Direct Join', req.query);
-        const { room } = req.query;
+app.post('/', (req, res) => {
+    if (hostCfg.authenticated && Object.keys(req.body).length > 0) {
+        log.debug('Direct Join', req.body);
+        const { name, room, token } = req.body;
+        const data = {
+            name,
+            room,
+            token
+        }
+        console.log(data);
         if (!!room) {
+            
+            res.cookie('data', JSON.stringify(req.body), { maxAge: 900000, httpOnly: false });
             return res.sendFile(views.room);
         }
     }

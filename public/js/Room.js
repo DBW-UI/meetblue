@@ -62,7 +62,7 @@ let token = getToken();
 
 let peer_geo = null;
 let peer_info = null;
-let personal_color= Math.floor(Math.random()*16777215).toString(16);
+let personal_color = Math.floor(Math.random() * 16777215).toString(16);
 
 let isSoundEnabled = true;
 let isLobbyEnabled = true;
@@ -129,7 +129,7 @@ function initClient() {
         setTippy('tabLanguagesBtn', 'Languages', 'top');
         setTippy('lobbyAcceptAllBtn', 'Accept', 'top');
         setTippy('lobbyRejectAllBtn', 'Reject', 'top');
-   
+
         setTippy('switchSounds', 'Toggle the sounds notifications', 'right');
         setTippy('whiteboardGhostButton', 'Toggle transparent background', 'bottom');
         setTippy('wbBackgroundColorEl', 'Background color', 'bottom');
@@ -167,6 +167,30 @@ function initClient() {
     initEnumerateDevices();
 }
 
+
+
+
+// ####################################################
+// get Token Through Cookie
+// ####################################################
+function getTokenAndNameFormCookie() {
+    const cookies = document.cookie.split(';').reduce((cookies, cookie) => {
+        const [name, value] = cookie.split('=').map((c) => c.trim());
+        cookies[name] = decodeURIComponent(value);
+        return cookies;
+    }, {});
+
+    if (cookies.data) {
+        return JSON.parse(cookies.data);
+    }
+}
+
+// ####################################################
+// End get Token Through Cookie
+// ####################################################
+
+
+
 // ####################################################
 // HANDLE TOOLTIP
 // ####################################################
@@ -184,8 +208,9 @@ function setTippy(elem, content, placement, allowHTML = false) {
 // ####################################################
 
 function getRoomId() {
-    let qs = new URLSearchParams(window.location.search);
-    let queryRoomId = qs.get('room');
+    // let qs = new URLSearchParams(window.location.search);
+    // let queryRoomId = qs.get('room');
+    let {room: queryRoomId} = getTokenAndNameFormCookie();
     let roomId = queryRoomId ? queryRoomId : location.pathname.substring(6);
     if (roomId == '') {
         roomId = makeId(12);
@@ -211,10 +236,9 @@ async function initEnumerateDevices() {
     console.log('01 ----> init Enumerate Devices');
     await initEnumerateAudioDevices();
     await initEnumerateVideoDevices();
-        hide(loadingDiv);
-        getPeerGeoLocation();
-        whoAreYou();
-    
+    hide(loadingDiv);
+    getPeerGeoLocation();
+    whoAreYou();
 }
 
 async function initEnumerateAudioDevices() {
@@ -317,7 +341,7 @@ function getScreen() {
         if (queryScreen != null && (navigator.getDisplayMedia || navigator.mediaDevices.getDisplayMedia))
             return queryScreen;
     }
-    return false;
+    return true;
 }
 
 function getNotify() {
@@ -332,13 +356,15 @@ function getNotify() {
 }
 
 function getPeerName() {
-    let qs = new URLSearchParams(window.location.search);
-    return qs.get('name');
+    // let qs = new URLSearchParams(window.location.search);
+    // return qs.get('name');
+    const { name} = getTokenAndNameFormCookie();
+    return name;
 }
 
 function getToken() {
-    let qs = new URLSearchParams(window.location.search);
-    return qs.get('token');
+    const {token} = getTokenAndNameFormCookie();
+    return token;
 }
 
 function getRoomPassword() {
@@ -513,7 +539,7 @@ function checkMedia() {
 async function shareRoom(useNavigator = false) {
     if (navigator.share && useNavigator) {
         try {
-            await navigator.share({ url: (RoomURL.split('?')[0])+'?room='+ room_id });
+            await navigator.share({ url: RoomURL.split('?')[0] + '?room=' + room_id });
             userLog('info', 'Room Shared successfully', 'top-end');
         } catch (err) {
             share();
@@ -537,7 +563,9 @@ async function shareRoom(useNavigator = false) {
             <br/><br/>
             <p style="background:transparent; color:white;">Share the link or QR code to invite others</p>
             <p style="background:transparent; color:rgb(8, 189, 89);">` +
-                (RoomURL.split('?')[0]) +'?room='+ room_id +
+                RoomURL.split('?')[0] +
+                '?room=' +
+                room_id +
                 `</p>`,
             showDenyButton: false,
             showCancelButton: true,
@@ -566,7 +594,7 @@ function makeRoomQR() {
     let qrSize = DetectRTC.isMobileDevice ? 128 : 256;
     let qr = new QRious({
         element: document.getElementById('qrRoom'),
-        value: (RoomURL.split('?')[0]) +'?room='+ room_id,
+        value: RoomURL.split('?')[0] + '?room=' + room_id,
     });
     qr.set({
         size: qrSize,
@@ -576,7 +604,7 @@ function makeRoomQR() {
 function copyRoomURL() {
     let tmpInput = document.createElement('input');
     document.body.appendChild(tmpInput);
-    tmpInput.value = (RoomURL.split('?')[0]) +'?room='+ room_id;
+    tmpInput.value = RoomURL.split('?')[0] + '?room=' + room_id;
     tmpInput.select();
     tmpInput.setSelectionRange(0, 99999); // For mobile devices
     navigator.clipboard.writeText(tmpInput.value);
@@ -599,6 +627,7 @@ function joinRoom(peer_name, room_id) {
     if (rc && rc.isConnected()) {
         console.log('Already connected to a room');
     } else {
+        console.log({RoomId: room_id, Name: peer_name});
         console.log('05 ----> join Room ' + room_id);
         rc = new RoomClient(
             localAudio,
@@ -972,7 +1001,6 @@ function handleButtons() {
     // unlockRoomButton.onclick = () => {
     //     rc.roomAction('unlock');
     // };
-
 }
 
 // ####################################################
@@ -1000,7 +1028,7 @@ function handleSelects() {
     switchSounds.onchange = (e) => {
         isSoundEnabled = e.currentTarget.checked;
     };
- 
+
     // styling
     BtnsAspectRatio.onchange = () => {
         setAspectRatio(BtnsAspectRatio.value);
@@ -1223,7 +1251,7 @@ function handleRoomClientEvents() {
             background: swalBackground,
             position: 'center',
             title: '<strong>Leaving Meeting?</strong>',
-            html:``,
+            html: ``,
             showDenyButton: false,
             showCancelButton: true,
             confirmButtonText: `Rejoin`,
@@ -1238,8 +1266,7 @@ function handleRoomClientEvents() {
             if (result.isConfirmed) {
                 location.reload();
             } else {
-                
-            openURL('https://deepbluework.com/');
+                openURL('https://deepbluework.com/');
             }
         });
     });
@@ -1833,18 +1860,18 @@ async function getParticipantsTable(peers) {
 
     for (let peer of Array.from(peers.keys())) {
         let peer_info = peers?.get(peer)?.peer_info;
-        if(peer_info.is_waiting === false){
-        let peer_name = peer_info.peer_name;
-        let peer_audio = peer_info.peer_audio ? _PEER.audioOn : _PEER.audioOff;
-        let peer_video = peer_info.peer_video ? _PEER.videoOn : _PEER.videoOff;
-        let peer_hand = peer_info.peer_hand ? _PEER.raiseHand : _PEER.lowerHand;
-        let peer_eject = _PEER.ejectPeer;
-        let peer_sendFile = _PEER.sendFile;
-        let peer_sendMsg = _PEER.sendMsg;
-        let peer_id = peer_info.peer_id;
-        let avatarImg = getParticipantAvatar(peer_name, peer_info.personal_color);
-        if (rc.peer_id === peer_id) {
-            table += `
+        if (peer_info.is_waiting === false) {
+            let peer_name = peer_info.peer_name;
+            let peer_audio = peer_info.peer_audio ? _PEER.audioOn : _PEER.audioOff;
+            let peer_video = peer_info.peer_video ? _PEER.videoOn : _PEER.videoOff;
+            let peer_hand = peer_info.peer_hand ? _PEER.raiseHand : _PEER.lowerHand;
+            let peer_eject = _PEER.ejectPeer;
+            let peer_sendFile = _PEER.sendFile;
+            let peer_sendMsg = _PEER.sendMsg;
+            let peer_id = peer_info.peer_id;
+            let avatarImg = getParticipantAvatar(peer_name, peer_info.personal_color);
+            if (rc.peer_id === peer_id) {
+                table += `
             <tr id='${peer_name}'>
                 <td><img src='${avatarImg}'></td>
                 <td>${peer_name} (me)</td>
@@ -1857,9 +1884,9 @@ async function getParticipantsTable(peers) {
                 <td></td>
             </tr>
             `;
-        } else {
-            if (isRulesActive && isPresenter) {
-                table += `
+            } else {
+                if (isRulesActive && isPresenter) {
+                    table += `
                 <tr id='${peer_id}'>
                     <td><img src='${avatarImg}'></td>
                     <td>${peer_name}</td>
@@ -1872,8 +1899,8 @@ async function getParticipantsTable(peers) {
                     <td><button id='${peer_id}___pEject' onclick="rc.peerAction('me',this.id,'eject')">${peer_eject}</button></td>
                 </tr>
                 `;
-            } else {
-                table += `
+                } else {
+                    table += `
                 <tr id='${peer_id}'>
                     <td><img src='${avatarImg}'></td>
                     <td>${peer_name}</td>
@@ -1886,9 +1913,9 @@ async function getParticipantsTable(peers) {
                     <td></td>
                 </tr>
                 `;
+                }
             }
         }
-    }
     }
     table += `</table>`;
     return table;
@@ -1923,7 +1950,7 @@ function refreshParticipantsCount(count, adapt = true) {
 }
 
 function getParticipantAvatar(peerName, personal_color) {
-    return cfg.msgAvatar + '?name=' + peerName + '&size=32' + '&background='+personal_color+'&rounded=true';
+    return cfg.msgAvatar + '?name=' + peerName + '&size=32' + '&background=' + personal_color + '&rounded=true';
 }
 
 // ####################################################
