@@ -198,10 +198,9 @@ app.use((err, req, res, next) => {
 
 // no room name specified to join || direct join
 app.get('/', (req, res) => {
-    console.log(req)
     if (hostCfg.authenticated && Object.keys(req.query).length > 0) {
         log.debug('Direct Join', req.query);
-        const { room } = req.query;
+        const { room} = req.query;
         if (!!room) {
             return res.sendFile(views.room);
         }
