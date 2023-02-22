@@ -208,9 +208,9 @@ function setTippy(elem, content, placement, allowHTML = false) {
 // ####################################################
 
 function getRoomId() {
-    // let qs = new URLSearchParams(window.location.search);
-    // let queryRoomId = qs.get('room');
-    let {room: queryRoomId} = getTokenAndNameFormCookie();
+    let qs = new URLSearchParams(window.location.search);
+    let queryRoomId = qs.get('room');
+    // let {room: queryRoomId} = getTokenAndNameFormCookie();
     let roomId = queryRoomId ? queryRoomId : location.pathname.substring(6);
     if (roomId == '') {
         roomId = makeId(12);
@@ -356,15 +356,18 @@ function getNotify() {
 }
 
 function getPeerName() {
-    // let qs = new URLSearchParams(window.location.search);
-    // return qs.get('name');
-    const { name} = getTokenAndNameFormCookie();
-    return name;
+    let qs = new URLSearchParams(window.location.search);
+    return qs.get('name');
+    // const { name} = getTokenAndNameFormCookie();
+    // return name;
 }
 
 function getToken() {
-    const {token} = getTokenAndNameFormCookie();
-    return token;
+    
+    let qs = new URLSearchParams(window.location.search);
+    return qs.get('token');
+    // const {token} = getTokenAndNameFormCookie();
+    // return token;
 }
 
 function getRoomPassword() {
