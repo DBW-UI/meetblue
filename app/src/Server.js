@@ -198,10 +198,10 @@ app.use((err, req, res, next) => {
 
 // no room name specified to join || direct join
 app.post('/', (req, res) => {
-    if (hostCfg.authenticated && Object.keys(req.body).length > 0) {
-        log.debug('Direct Join', req.body);
+    if (hostCfg.authenticated && Object.keys(req.query).length > 0) {
+        log.debug('Direct Join', req.query);
+        const { room } = req.query;
         if (!!room) {
-            res.cookie('data', JSON.stringify(req.body), { maxAge: 900000 });
             return res.sendFile(views.room);
         }
     }
