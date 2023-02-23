@@ -180,12 +180,32 @@ function setTippy(elem, content, placement, allowHTML = false) {
 }
 
 // ####################################################
+// get Token Through Cookie
+// ####################################################
+function extractTokenAndRoomFromCookie() {
+    const cookies = document.cookie.split(';').reduce((cookies, cookie) => {
+        const [name, value] = cookie.split('=').map((c) => c.trim());
+        cookies[name] = decodeURIComponent(value);
+        return cookies;
+    }, {});
+
+    if (cookies.data) {
+        return JSON.parse(cookies.data);
+    }
+}
+
+// ####################################################
+// End get Token Through Cookie
+// ####################################################
+
+// ####################################################
 // GET ROOM ID
 // ####################################################
 
 function getRoomId() {
-    let qs = new URLSearchParams(window.location.search);
-    let queryRoomId = qs.get('room');
+    // let qs = new URLSearchParams(window.location.search);
+    // let queryRoomId = qs.get('room');
+    let {room: queryRoomId} = extractTokenAndRoomFromCookie();
     let roomId = queryRoomId ? queryRoomId : location.pathname.substring(6);
     if (roomId == '') {
         roomId = makeId(12);
@@ -332,13 +352,17 @@ function getNotify() {
 }
 
 function getPeerName() {
-    let qs = new URLSearchParams(window.location.search);
-    return qs.get('name');
+    // let qs = new URLSearchParams(window.location.search);
+    // return qs.get('name');
+    const { name} = extractTokenAndRoomFromCookie();
+    return name;
 }
 
 function getToken() {
-    let qs = new URLSearchParams(window.location.search);
-    return qs.get('token');
+    // let qs = new URLSearchParams(window.location.search);
+    // return qs.get('token');
+    const { token} = extractTokenAndRoomFromCookie();
+    return token;
 }
 
 function getRoomPassword() {

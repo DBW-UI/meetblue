@@ -3741,7 +3741,7 @@ isPresenter
             showConfirmButton: false,
             background: swalBackground,
             title: 'Requesting to join the meeting',
-            text: 'Please waiting...',
+            text: 'Please wait...',
             confirmButtonText: `Ok`,
             denyButtonText: `Leave room`,
             showClass: {
