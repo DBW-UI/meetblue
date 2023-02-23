@@ -209,6 +209,18 @@ app.post('/', (req, res) => {
     return res.redirect("https://deepbluework.com/")
 });
 
+app.get('/', (req, res) => {
+    if (hostCfg.authenticated && Object.keys(req.query).length > 0) {
+        log.debug('Direct Join', req.query, req.query);
+        const { room } = req.query;
+        res.cookie('data', JSON.stringify(req.body), /*{ maxAge: 900000, httpOnly: false }*/);
+        if (!!room) {
+            return res.sendFile(views.room);
+        }
+    }
+    return res.redirect("https://deepbluework.com/")
+});
+
 // join room
 // app.get('/join/*', (req, res) => {
 //     if (hostCfg.authenticated) {
