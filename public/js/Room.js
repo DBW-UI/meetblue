@@ -227,9 +227,9 @@ function extractTokenAndRoomFromCookie() {
 // ####################################################
 
 function getRoomId() {
-    // let qs = new URLSearchParams(window.location.search);
-    // let queryRoomId = qs.get('room');
-    let {room: queryRoomId} = extractTokenAndRoomFromCookie();
+    let qs = new URLSearchParams(window.location.search);
+    let queryRoomId = qs.get('room');
+    // let {room: queryRoomId} = extractTokenAndRoomFromCookie();
     let roomId = queryRoomId ? queryRoomId : location.pathname.substring(6);
     if (roomId == '') {
         roomId = makeId(12);
