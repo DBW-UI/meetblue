@@ -307,9 +307,9 @@ class RoomClient {
         if (notify && participantsCount == 1) {
             shareRoom();
         } else {
-            if (this.isScreenAllowed) {
-                this.shareScreen();
-            }
+            // if (this.isScreenAllowed) {
+            //     this.shareScreen();
+            // }
             sound('joined');
         }
     
@@ -1688,38 +1688,37 @@ class RoomClient {
     // SHARE SCREEN ON JOIN
     // ####################################################
 
-    // shareScreen() {
-    //     return;
-    //     if (!this.isMobileDevice && (navigator.getDisplayMedia || navigator.mediaDevices.getDisplayMedia)) {
-    //         this.sound('open');
-    //         // startScreenButton.click(); // Chrome - Opera - Edge - Brave
-    //         // handle error: getDisplayMedia requires transient activation from a user gesture on Safari - FireFox
-    //         Swal.fire({
-    //             background: swalBackground,
-    //             position: 'center',
-    //             icon: 'question',
-    //             text: 'Do you want to share your screen?',
-    //             showDenyButton: true,
-    //             confirmButtonText: `Yes`,
-    //             denyButtonText: `No`,
-    //             showClass: {
-    //                 popup: 'animate__animated animate__fadeInDown',
-    //             },
-    //             hideClass: {
-    //                 popup: 'animate__animated animate__fadeOutUp',
-    //             },
-    //         }).then((result) => {
-    //             if (result.isConfirmed) {
-    //                 startScreenButton.click();
-    //                 console.log('11 ----> Screen is on');
-    //             } else {
-    //                 console.log('11 ----> Screen is on');
-    //             }
-    //         });
-    //     } else {
-    //         console.log('11 ----> Screen is off');
-    //     }
-    // }
+    shareScreen() {
+        if (!this.isMobileDevice && (navigator.getDisplayMedia || navigator.mediaDevices.getDisplayMedia)) {
+            this.sound('open');
+            // startScreenButton.click(); // Chrome - Opera - Edge - Brave
+            // handle error: getDisplayMedia requires transient activation from a user gesture on Safari - FireFox
+            Swal.fire({
+                background: swalBackground,
+                position: 'center',
+                icon: 'question',
+                text: 'Do you want to share your screen?',
+                showDenyButton: true,
+                confirmButtonText: `Yes`,
+                denyButtonText: `No`,
+                showClass: {
+                    popup: 'animate__animated animate__fadeInDown',
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOutUp',
+                },
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    startScreenButton.click();
+                    console.log('11 ----> Screen is on');
+                } else {
+                    console.log('11 ----> Screen is on');
+                }
+            });
+        } else {
+            console.log('11 ----> Screen is off');
+        }
+    }
 
     // ####################################################
     // EXIT ROOM
