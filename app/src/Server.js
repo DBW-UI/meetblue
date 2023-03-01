@@ -197,10 +197,23 @@ app.use((err, req, res, next) => {
 // });
 
 // no room name specified to join || direct join
+app.post('/', (req, res) => {
+    if (hostCfg.authenticated && Object.keys(req.body).length > 0) {
+        log.debug('Direct Join', req.query, req.body);
+        const { room } = req.query;
+        res.cookie('data', JSON.stringify(req.body), /*{ maxAge: 900000, httpOnly: false }*/);
+        if (!!room) {
+            return res.sendFile(views.room);
+        }
+    }
+    return res.redirect("https://deepbluework.com/")
+});
+
 app.get('/', (req, res) => {
     if (hostCfg.authenticated && Object.keys(req.query).length > 0) {
-        log.debug('Direct Join', req.query);
+        log.debug('Direct Join', req.query, req.query);
         const { room } = req.query;
+        res.cookie('data', JSON.stringify(req.body), /*{ maxAge: 900000, httpOnly: false }*/);
         if (!!room) {
             return res.sendFile(views.room);
         }
