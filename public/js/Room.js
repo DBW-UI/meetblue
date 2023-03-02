@@ -57,6 +57,7 @@ let chatMessagesId = 0;
 let room_id = getRoomId();
 let room_password = getRoomPassword();
 let peer_name = getPeerName();
+let peer_password = false;
 let notify = getNotify();
 let token = getToken();
 
@@ -170,24 +171,24 @@ function initClient() {
 
 
 
-// ####################################################
-// get Token Through Cookie
-// ####################################################
-function getTokenAndNameFormCookie() {
-    const cookies = document.cookie.split(';').reduce((cookies, cookie) => {
-        const [name, value] = cookie.split('=').map((c) => c.trim());
-        cookies[name] = decodeURIComponent(value);
-        return cookies;
-    }, {});
+// // ####################################################
+// // get Token Through Cookie
+// // ####################################################
+// function getTokenAndNameFormCookie() {
+//     const cookies = document.cookie.split(';').reduce((cookies, cookie) => {
+//         const [name, value] = cookie.split('=').map((c) => c.trim());
+//         cookies[name] = decodeURIComponent(value);
+//         return cookies;
+//     }, {});
 
-    if (cookies.data) {
-        return JSON.parse(cookies.data);
-    }
-}
+//     if (cookies.data) {
+//         return JSON.parse(cookies.data);
+//     }
+// }
 
-// ####################################################
-// End get Token Through Cookie
-// ####################################################
+// // ####################################################
+// // End get Token Through Cookie
+// // ####################################################
 
 
 
@@ -443,8 +444,13 @@ function getPeerGeoLocation() {
 // ENTER YOUR NAME | Enable/Disable AUDIO/VIDEO
 // ####################################################
 
-function whoAreYou() {
+async function whoAreYou() {
     console.log('04 ----> Who are you');
+
+    let qs = new URLSearchParams(window.location.search);
+    let isOrganizer = !!(qs.get('organizer'));
+
+    const adminPass = '@Test12345';
 
     if (peer_name) {
         checkMedia();
@@ -458,40 +464,93 @@ function whoAreYou() {
         default_name = getCookie(room_id + '_name');
     }
 
-    Swal.fire({
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        background: swalBackground,
-        imageAlt: 'meetblue-username',
-        imageUrl: image.username,
-        input: 'text',
-        inputPlaceholder: 'Enter your name',
-        inputValue: default_name,
-        html: `<br />
-        <div style="padding: 10px;">
-            <button id="initAudioButton" class="fas fa-microphone-slash" style="color:red" onclick="handleAudio(event)"></button>
-            <button id="initVideoButton" class="fas fa-video-slash" style="color:red" onclick="handleVideo(event)"></button>
-            <button id="initAudioVideoButton" class="fas fa-eye-slash" style="color:red" onclick="handleAudioVideo(event)"></button>
-        </div>`,
-        confirmButtonText: `Join meeting`,
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown',
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp',
-        },
-        inputValidator: (name) => {
-            if (!name) return 'Please enter your name';
-            if (!getCookie(room_id + '_name')) {
-                window.localStorage.peer_name = name;
-            }
-            setCookie(room_id + '_name', name, 30);
-            peer_name = name;
-        },
-    }).then(() => {
-        getPeerInfo();
-        joinRoom(peer_name, room_id);
+    const inputFields = [
+    {
+        id: 'swal-input1',
+        placeholder: 'Username',
+        type: 'text',
+        value: default_name,
+        validation: {
+        required: true,
+        errorMessage: 'Please enter your username'
+        }
+    }
+    ];
+
+    if (isOrganizer) {
+    inputFields.push({
+        id: 'swal-input2',
+        placeholder: 'Password',
+        type: 'password',
+        validation: {
+        required: true,
+        errorMessage: 'Please enter your password'
+        }
     });
+    }
+
+    const html = `
+    <div style="padding: 10px;">
+        <button id="initAudioButton" class="fas fa-microphone-slash" style="color:red" onclick="handleAudio(event)"></button>
+        <button id="initVideoButton" class="fas fa-video-slash" style="color:red" onclick="handleVideo(event)"></button>
+        <button id="initAudioVideoButton" class="fas fa-eye-slash" style="color:red" onclick="handleAudioVideo(event)"></button>
+    </div>
+    ${inputFields.map(field =>
+        `<input id="${field.id}" class="swal2-input" type="${field.type}" value="${field.value ? field.value : ''}" placeholder="${field.placeholder}" style="width: 100% !important; margin-inline: 0 !important;" required>`
+    ).join('')}`;
+
+    const customCss = `
+    .swal2-input {
+        margin-inline: 0 !important;
+        width: 100% !important;
+    }
+    `;
+
+    Swal.fire({
+    title: 'Join Meetblue',
+    html: html,
+    focusConfirm: false,
+    confirmButtonText: 'Join Meeting',
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    background: swalBackground,
+    imageAlt: 'meetblue-username',
+    imageUrl: image.username,
+    preConfirm: () => {
+        const username = document.getElementById('swal-input1').value;
+        const password = isOrganizer ? document.getElementById('swal-input2').value : '';
+        if(username.trim() === ''){
+            return Swal.showValidationMessage('Please enter your name');
+        }
+        if(isOrganizer && password.trim() === ''){
+            return Swal.showValidationMessage('Please Enter Your password')
+        }
+
+        if(isOrganizer && password !== adminPass) return Swal.showValidationMessage(`Your password is incorrect!`);
+
+        peer_name = username;
+        peer_password = password;
+        return { username, password };
+    },
+    customClass: {
+        container: 'swal2-container-custom',
+        confirmButton: 'swal2-confirm-button-custom',
+        cancelButton: 'swal2-cancel-button-custom',
+    },
+    onOpen: () => {
+        const style = document.createElement('style');
+        style.innerHTML = customCss;
+        document.head.appendChild(style);
+    }
+    }).then(result => {
+    if (result.isConfirmed) {
+        const { username, password } = result.value;
+        getPeerInfo();
+        joinRoom(username, room_id);
+        console.log(`Username: ${username}, Password: ${password}`);
+    }
+    });
+
 
     if (!DetectRTC.isMobileDevice) {
         setTippy('initAudioButton', 'Toggle the audio', 'left');
@@ -648,7 +707,6 @@ function joinRoom(peer_name, room_id) {
     if (rc && rc.isConnected()) {
         console.log('Already connected to a room');
     } else {
-        console.log({RoomId: room_id, Name: peer_name});
         console.log('05 ----> join Room ' + room_id);
         rc = new RoomClient(
             localAudio,
@@ -659,6 +717,7 @@ function joinRoom(peer_name, room_id) {
             socket,
             room_id,
             peer_name,
+            peer_password,
             peer_geo,
             peer_info,
             isAudioAllowed,

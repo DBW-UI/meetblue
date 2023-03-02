@@ -115,6 +115,7 @@ class RoomClient {
         socket,
         room_id,
         peer_name,
+        peer_password,
         peer_geo,
         peer_info,
         isAudioAllowed,
@@ -132,6 +133,7 @@ class RoomClient {
         this.room_id = room_id;
         this.peer_id = socket.id;
         this.peer_name = peer_name;
+        this.peer_pass = peer_password;
         this.peer_geo = peer_geo;
         this.peer_info = peer_info;
 
@@ -228,6 +230,7 @@ class RoomClient {
                     room_id: this.room_id,
                     peer_info: this.peer_info,
                     peer_geo: this.peer_geo,
+                    peer_pass: this.peer_pass,
                 };
                 await this.join(data);
                 this.initSockets();

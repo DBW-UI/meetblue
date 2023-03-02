@@ -666,6 +666,13 @@ io.on('connection', (socket) => {
             return cb('isLocked');
         }
 
+        if(!!data.peer_pass){
+            const isOrganizer = true;
+            roomList.get(socket.room_id)?.getPeers()?.get(socket.id)?.updatePeerInfo({ type: 'security', dbw_name: data?.peer_name, user_name: data?.peer_name, is_organizer:  isOrganizer, is_waiting: false});
+            cb(roomList.get(socket.room_id).toJson());
+            isOrganizer && sendWaitingApprovals(socket);
+            return;
+        }
 
         if (!!data?.peer_info?.token) {
             axios.get(`${process.env.APP_API_SERVICE_URL}/v1/user/calendar/meeting/${socket.room_id}`, {
