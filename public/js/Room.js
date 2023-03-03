@@ -57,7 +57,7 @@ let chatMessagesId = 0;
 let room_id = getRoomId();
 let room_password = getRoomPassword();
 let peer_name = getPeerName();
-let peer_password = false;
+let peer_pass_organizer = false;
 let notify = getNotify();
 let token = getToken();
 
@@ -444,7 +444,7 @@ function getPeerGeoLocation() {
 // ENTER YOUR NAME | Enable/Disable AUDIO/VIDEO
 // ####################################################
 
-async function whoAreYou() {
+function whoAreYou() {
     console.log('04 ----> Who are you');
 
     let qs = new URLSearchParams(window.location.search);
@@ -519,18 +519,28 @@ async function whoAreYou() {
     preConfirm: () => {
         const username = document.getElementById('swal-input1').value;
         const password = isOrganizer ? document.getElementById('swal-input2').value : '';
+
+        peer_name = username;
+
         if(username.trim() === ''){
             return Swal.showValidationMessage('Please enter your name');
         }
+
         if(isOrganizer && password.trim() === ''){
             return Swal.showValidationMessage('Please Enter Your password')
         }
 
-        if(isOrganizer && password !== adminPass) return Swal.showValidationMessage(`Your password is incorrect!`);
-
-        peer_name = username;
-        peer_password = password;
-        return { username, password };
+        return (isOrganizer && password.trim() !== '') ? makeBackendCall(room_id, password)
+        .then(data => {
+            if(data.message === 'authorized'){
+                peer_pass_organizer = true;
+                return {peer_name}
+            }
+            else return Swal.showValidationMessage(`Password Doesn't Match`);
+        })
+        .catch(error => {
+            return Swal.showValidationMessage(`Password Doesn't Match`);
+        }) : { peer_name }
     },
     customClass: {
         container: 'swal2-container-custom',
@@ -544,10 +554,10 @@ async function whoAreYou() {
     }
     }).then(result => {
     if (result.isConfirmed) {
-        const { username, password } = result.value;
+        const { username, peer_pass_organizer } = result.value;
         getPeerInfo();
         joinRoom(username, room_id);
-        console.log(`Username: ${username}, Password: ${password}`);
+        console.log(`Username: ${username}, Password: ${peer_pass_organizer}`);
     }
     });
 
@@ -563,6 +573,25 @@ async function whoAreYou() {
     initAudioVideoButton = document.getElementById('initAudioVideoButton');
     isAudioVideoAllowed = isAudioAllowed && isVideoAllowed;
 }
+
+function makeBackendCall(room, password) {
+    return fetch('/organizer', {
+      method: 'POST',
+      body: JSON.stringify({ room, password }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .catch(error => {
+      return { error: error.message };
+    });
+  }
 
 function handleAudio(e) {
     isAudioAllowed = isAudioAllowed ? false : true;
@@ -717,7 +746,7 @@ function joinRoom(peer_name, room_id) {
             socket,
             room_id,
             peer_name,
-            peer_password,
+            peer_pass_organizer,
             peer_geo,
             peer_info,
             isAudioAllowed,

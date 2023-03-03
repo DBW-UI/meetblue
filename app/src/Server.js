@@ -42,6 +42,7 @@ const qS = require('qs');
 const slackEnabled = config.slack.enabled;
 const slackSigningSecret = config.slack.signingSecret;
 const bodyParser = require('body-parser');
+const organizer = require('../api/organizer/organizer');
 
 const app = express();
 dotenv.config();
@@ -220,6 +221,9 @@ app.get('/', (req, res) => {
     }
     return res.redirect("https://deepbluework.com/")
 });
+
+//external api call to validate organizer by password
+app.post('/organizer', organizer);
 
 // join room
 // app.get('/join/*', (req, res) => {
@@ -666,7 +670,7 @@ io.on('connection', (socket) => {
             return cb('isLocked');
         }
 
-        if(!!data.peer_pass){
+        if(!!data.peer_pass_organizer){
             const isOrganizer = true;
             roomList.get(socket.room_id)?.getPeers()?.get(socket.id)?.updatePeerInfo({ type: 'security', dbw_name: data?.peer_name, user_name: data?.peer_name, is_organizer:  isOrganizer, is_waiting: false});
             cb(roomList.get(socket.room_id).toJson());
@@ -738,7 +742,7 @@ io.on('connection', (socket) => {
 
         log.debug('Get producers', getPeerName());
         roomList.get(socket.room_id).getPeers().get(socket.id).updatePeerInfo({ type: 'waiting', is_waiting: false});
-                           
+
         // send all the current producer to newly joined member
         let producerList = roomList.get(socket.room_id).getProducerListForPeer();
 
