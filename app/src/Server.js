@@ -565,7 +565,7 @@ io.on('connection', (socket) => {
             lobby: data.lobby_status,
             broadcast: data.broadcast,
         });
-
+ 
         if (data.peers_id && data.broadcast) {
             for (let peer_id in data.peers_id) {
                 roomList.get(socket.room_id).sendTo(data.peers_id[peer_id], 'roomLobby', data);

@@ -532,7 +532,7 @@ function whoAreYou() {
 
         return (isOrganizer && password.trim() !== '') ? makeBackendCall(room_id, password)
         .then(data => {
-            if(data.message === 'authorized'){
+            if(data.status === 200){
                 peer_pass_organizer = true;
                 return {peer_name}
             }
@@ -575,9 +575,8 @@ function whoAreYou() {
 }
 
 function makeBackendCall(room, password) {
-    return fetch('/organizer', {
-      method: 'POST',
-      body: JSON.stringify({ room, password }),
+    return fetch(`https://gateway.dev-stag.deepbluework.com/v1/user/calendar/meeting/chkpassword/${room}?password=${password}`, {
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json'
       }
@@ -586,7 +585,7 @@ function makeBackendCall(room, password) {
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-      return response.json();
+      return response;
     })
     .catch(error => {
       return { error: error.message };
