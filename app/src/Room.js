@@ -291,6 +291,11 @@ module.exports = class Room {
             this.send(otherID, action, data);
         }
     }
+    broadCast2(socket_id, action, data) {
+        for (let otherID of Array.from(this.peers.keys()).filter((id) => id !== socket_id)) {
+            this.send2(otherID, action, data);
+        }
+    }
 
     sendTo(socket_id, action, data) {
         for (let peer_id of Array.from(this.peers.keys()).filter((id) => id === socket_id)) {
@@ -301,6 +306,12 @@ module.exports = class Room {
     send(socket_id, action, data) {
         const peer_info = this.peers.get(socket_id)?.peer_info;
             if (peer_info?.is_waiting === false || action === "roomLobby") {
+                this.io.to(socket_id).emit(action, data);
+            }
+    }
+    send2(socket_id, action, data) {
+        const peer_info = this.peers.get(socket_id)?.peer_info;
+            if (peer_info?.is_waiting === false || action === "roomLobbyUpdate") {
                 this.io.to(socket_id).emit(action, data);
             }
     }

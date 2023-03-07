@@ -530,16 +530,16 @@ function whoAreYou() {
             return Swal.showValidationMessage('Please Enter Your password')
         }
 
-        return (isOrganizer && password.trim() !== '') ? makeBackendCall(room_id, password)
+        return (isOrganizer && password.trim() !== '') ? checkOrganizerByPassword(room_id, password)
         .then(data => {
-            if(data.status === 200){
+            if(data.allow){
                 peer_pass_organizer = true;
                 return {peer_name}
             }
             else return Swal.showValidationMessage(`Password Doesn't Match`);
         })
         .catch(error => {
-            return Swal.showValidationMessage(`Password Doesn't Match`);
+            return Swal.showValidationMessage(`ERROR: ${error}`);
         }) : { peer_name }
     },
     customClass: {
@@ -574,21 +574,25 @@ function whoAreYou() {
     isAudioVideoAllowed = isAudioAllowed && isVideoAllowed;
 }
 
-function makeBackendCall(room, password) {
-    return fetch(`https://gateway.dev-stag.deepbluework.com/v1/user/calendar/meeting/chkpassword/${room}?password=${password}`, {
-      method: 'GET',
+function checkOrganizerByPassword(room_id, password) {
+    return fetch('/organizer', {
+      method: 'POST',
+      body: JSON.stringify({ room: room_id, password }),
       headers: {
         'Content-Type': 'application/json'
       }
     })
     .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
+      if (response.ok && response.status === 200) {
+        return response.json();
+      } else if(response.status === 401) {
+        throw new Error('Password is invalid');
+      } else {
+        throw new Error('Something wen"t wrong');
       }
-      return response;
     })
     .catch(error => {
-      return { error: error.message };
+      throw new Error('Network error: ' + error.message);
     });
   }
 

@@ -575,6 +575,15 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('roomLobbyUpdate', (data) => {
+        roomList.get(socket.room_id).broadCast2(data.peer_id, 'roomLobbyUpdate', {
+            peer_id: data.peer_id,
+            peer_name: data.peer_name,
+            lobby_status: data.lobby_status,
+        });
+        log.debug('Received data from client:', data);
+    })
+
     socket.on('peerAction', (data) => {
         if (!roomList.has(socket.room_id)) return;
 

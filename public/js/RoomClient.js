@@ -115,7 +115,7 @@ class RoomClient {
         socket,
         room_id,
         peer_name,
-        peer_password,
+        peer_pass_organizer,
         peer_geo,
         peer_info,
         isAudioAllowed,
@@ -552,6 +552,13 @@ class RoomClient {
                 this.roomLobby(data);
             }.bind(this),
         );
+        
+
+        this.socket.on('roomLobbyUpdate', function (data) {
+            console.log('Room Lobby Update:', data);
+            this.roomLobbyUpdate(data);
+        }.bind(this),
+        )
 
         this.socket.on(
             'cmd',
@@ -3458,6 +3465,20 @@ isPresenter
         }
     }
 
+    roomLobbyUpdate(data){
+        console.log(data);
+        if(data.broadcast){
+            this.lobbyAcceptAll();
+            return
+        }
+        console.log('Data received from server: ', data);
+        const trElem = this.getId(data.peer_id);
+        trElem?.parentNode?.removeChild(trElem);
+        lobbyParticipantsCount--;
+        
+        lobbyHeaderTitle.innerText = 'Lobby users (' + lobbyParticipantsCount + ')';
+        if (lobbyParticipantsCount == 0) this.lobbyToggle();
+    }
     roomStatus(action) {
         switch (action) {
             case 'lock':
@@ -3573,17 +3594,22 @@ isPresenter
             broadcast: false,
         };
         this.socket.emit('roomLobby', data);
-        const trElem = this.getId(peer_id);
-        trElem.parentNode.removeChild(trElem);
-        lobbyParticipantsCount--;
-        lobbyHeaderTitle.innerText = 'Lobby users (' + lobbyParticipantsCount + ')';
-        if (lobbyParticipantsCount == 0) this.lobbyToggle();
+        // Emit a custom event from the client
+        this.socket.emit('roomLobbyUpdate', data);
+        // const trElem = this.getId(peer_id);
+        // trElem.parentNode.removeChild(trElem);
+        // lobbyParticipantsCount--;
+        
+        // lobbyHeaderTitle.innerText = 'Lobby users (' + lobbyParticipantsCount + ')';
+        // if (lobbyParticipantsCount == 0) this.lobbyToggle();
     }
 
     lobbyAcceptAll() {
         if (lobbyParticipantsCount > 0) {
             const data = this.lobbyGetData('accept', this.lobbyGetPeerIds());
+            console.log(data);
             this.socket.emit('roomLobby', data);
+            this.socket.emit('roomLobbyUpdate', data);
             this.lobbyRemoveAll();
         } else {
             this.userLog('info', 'No participants in lobby detected', 'top-end');
@@ -3594,6 +3620,7 @@ isPresenter
         if (lobbyParticipantsCount > 0) {
             const data = this.lobbyGetData('reject', this.lobbyGetPeerIds());
             this.socket.emit('roomLobby', data);
+            this.socket.emit('roomLobbyUpdate', data);
             this.lobbyRemoveAll();
         } else {
             this.userLog('info', 'No participants in lobby detected', 'top-end');
