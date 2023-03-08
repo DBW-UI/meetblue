@@ -287,11 +287,13 @@ module.exports = class Room {
     // ####################################################
 
     broadCast(socket_id, action, data) {
+        log.debug('Data is checking', data);
         for (let otherID of Array.from(this.peers.keys()).filter((id) => id !== socket_id)) {
             this.send(otherID, action, data);
         }
     }
     broadCast2(socket_id, action, data) {
+        !!data.peers_id && this.send2(socket_id, action, data);
         for (let otherID of Array.from(this.peers.keys()).filter((id) => id !== socket_id)) {
             this.send2(otherID, action, data);
         }
