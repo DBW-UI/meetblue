@@ -1013,13 +1013,13 @@ function handleButtons() {
     startAudioButton.onclick = () => {
         setAudioButtonsDisabled(true);
         if (!isEnumerateAudioDevices) initEnumerateAudioDevices();
-        rc.produce(RoomClient.mediaType.audio, microphoneSelect.value);
+        //rc.produce(RoomClient.mediaType.audio, microphoneSelect.value);
         rc.updatePeerInfo(peer_name, rc.peer_id, 'audio', true);
         // rc.resumeProducer(RoomClient.mediaType.audio);
     };
     stopAudioButton.onclick = () => {
         setAudioButtonsDisabled(true);
-        rc.closeProducer(RoomClient.mediaType.audio);
+        //rc.closeProducer(RoomClient.mediaType.audio);
         rc.updatePeerInfo(peer_name, rc.peer_id, 'audio', false);
         // rc.pauseProducer(RoomClient.mediaType.audio);
     };
